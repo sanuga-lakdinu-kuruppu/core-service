@@ -58,7 +58,7 @@ jobs:
       - name: Deploy to AWS Lambda
         run: |
           # Assuming the Lambda function name is 'core-service'
-          aws lambda update-function-code --function-name core-service --zip-file fileb://./function.zip
+          aws lambda update-function-code --function-name core-service --zip-file fileb:///home/runner/work/core-service/core-service/function.zip
 
       # Update Lambda environment variables (if needed)
       # - name: Set Lambda environment variables
