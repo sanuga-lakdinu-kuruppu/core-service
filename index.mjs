@@ -10,6 +10,10 @@ app.get("/tests", (request, response) => {
   return response.send({ msg: "This is the api testing" });
 });
 
+app.get("/tests3", (request, response) => {
+  return response.send({ msg: "This is the api testing3" });
+});
+
 // const PORT = process.env.PORT || 5000;
 
 // app.listen(PORT, () => {

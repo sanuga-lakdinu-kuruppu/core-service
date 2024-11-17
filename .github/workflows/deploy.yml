@@ -1,0 +1,63 @@
+name: Deploy Lambda to AWS # This is the name of the workflow
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow on push to the 'main' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Node.js environment (or any other environment depending on your Lambda runtime)
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20" # Specify your Lambda runtime version
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install
+
+      # Create a zip file for deployment
+      - name: Package Lambda function
+        run: |
+          zip -r function.zip .
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up AWS CLI
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1 # Change to your Lambda region
+
+      # Deploy the Lambda function
+      - name: Deploy to AWS Lambda
+        run: |
+          # Assuming the Lambda function name is 'core-service'
+          aws lambda update-function-code --function-name core-service --zip-file fileb://function.zip
+
+      # Update Lambda environment variables (if needed)
+      # - name: Set Lambda environment variables
+      #   run: |
+      #     aws lambda update-function-configuration --function-name core-service \
+      #       --environment "Variables={LAMBDA_ENV_VAR_1=${{ secrets.LAMBDA_ENV_VAR_1 }},LAMBDA_ENV_VAR_2=${{ secrets.LAMBDA_ENV_VAR_2 }}"
+
+      # Clean up (optional)
+      - name: Clean up
+        run: |
+          rm function.zip
