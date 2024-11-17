@@ -9,32 +9,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "20" # Specify your Lambda runtime version
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           npm install
 
-      # Create a zip file for deployment
       - name: Package Lambda function
         run: |
           zip -r function.zip .
 
-      # Verify zip file
       - name: Verify zip file
         run: |
           ls -al function.zip
 
-      # Set up AWS CLI
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -42,14 +36,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-1 # Change to your Lambda region
 
-      # Deploy the Lambda function
       - name: Deploy to AWS Lambda
         run: |
           # Assuming the Lambda function name is 'core-service'
           aws lambda update-function-code --function-name core-service --zip-file fileb://function.zip
 
-      # Clean up (optional)
       - name: Clean up
         run: |
           rm function.zip
-
