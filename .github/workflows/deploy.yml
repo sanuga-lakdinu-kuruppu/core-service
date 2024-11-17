@@ -29,6 +29,11 @@ jobs:
         run: |
           zip -r function.zip .
 
+      - name: Verify zip file
+        run: |
+          ls -al function.zip
+
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
