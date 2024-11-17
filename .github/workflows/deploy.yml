@@ -33,6 +33,10 @@ jobs:
         run: |
           ls -al function.zip
 
+      - name: Get the correct path
+        run: |
+          realpath .
+
 
   deploy:
     runs-on: ubuntu-latest
