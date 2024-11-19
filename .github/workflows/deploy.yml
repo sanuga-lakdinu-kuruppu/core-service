@@ -40,6 +40,11 @@ jobs:
         run: |
           aws lambda update-function-code --function-name core-service --zip-file fileb://function.zip
 
+      - name: Wait for function code update
+        run: |
+          echo "Waiting for the function code update to complete..."
+          sleep 10
+
       - name: Update Lambda environment variables
         run: |
           aws lambda update-function-configuration \
