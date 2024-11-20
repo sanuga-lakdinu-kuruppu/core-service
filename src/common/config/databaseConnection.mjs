@@ -4,10 +4,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const ENVIRONMENT = process.env.ENVIRONMENT;
-const MONGO_URI =
-  ENVIRONMENT === "local"
-    ? process.env.MONGO_URI_LOCAL
-    : process.env.MONGO_URI_PRODUCTION;
+let MONGO_URI;
+if (ENVIRONMENT === "production") MONGO_URI = process.env.MONGO_URI_PRODUCTION;
+else if (ENVIRONMENT === "test") MONGO_URI = process.env.MONGO_URI_TEST;
+else MONGO_URI = process.env.MONGO_URI_LOCAL;
+
 let isConnected = false;
 
 const createConnection = async () => {
