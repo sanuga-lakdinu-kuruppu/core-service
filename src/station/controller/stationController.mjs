@@ -24,6 +24,7 @@ router.post(
       return response.status(201).send(createdStation);
     } catch (error) {
       console.log(`station creation error ${error}`);
+      return response.status(500).send({ error: "internal server error" });
     }
   }
 );
