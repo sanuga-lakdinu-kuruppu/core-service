@@ -24,9 +24,11 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.3/stations:
+ * /core-service/v1.4/stations:
  *   post:
  *     summary: Create a new station
+ *     tags:
+ *       - Station
  *     description: Create a new station with the provided data.
  *     requestBody:
  *       required: true
@@ -106,10 +108,12 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.3/stations:
+ * /core-service/v1.4/stations:
  *   get:
  *     summary: Retrieve all stations
- *     description: Retrieve a list of all stations, optionally filtered by name.
+ *     tags:
+ *       - Station
+ *     description: Retrieve a list of all stations, optionally filtered by `name`.
  *     parameters:
  *       - name: name
  *         in: query
@@ -212,9 +216,11 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.3/stations/{stationId}:
+ * /core-service/v1.4/stations/{stationId}:
  *   get:
  *     summary: Retrieve a station by its ID
+ *     tags:
+ *       - Station
  *     description: Retrieve a specific station by its ID.
  *     parameters:
  *       - name: stationId
@@ -311,9 +317,11 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.3/stations/{stationId}:
+ * /core-service/v1.4/stations/{stationId}:
  *   put:
  *     summary: Update a station by its ID
+ *     tags:
+ *       - Station
  *     description: Update the details of an existing station using its ID.
  *     parameters:
  *       - name: stationId
@@ -433,9 +441,11 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.3/stations/{stationId}:
+ * /core-service/v1.4/stations/{stationId}:
  *   delete:
  *     summary: Delete a station by its ID
+ *     tags:
+ *       - Station
  *     description: Delete an existing station using its ID.
  *     parameters:
  *       - name: stationId
