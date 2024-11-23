@@ -22,6 +22,69 @@ const SERVICE_NAME = process.env.SERVICE;
 const VERSION = process.env.VERSION;
 const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
+/**
+ * @swagger
+ * /core-service/v1.3/stations:
+ *   post:
+ *     summary: Create a new station
+ *     description: Create a new station with the provided data.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Colombo Bus Station"
+ *               coordinates:
+ *                 type: object
+ *                 properties:
+ *                   lat:
+ *                     type: number
+ *                     example: 6.9335635889865594
+ *                   log:
+ *                     type: number
+ *                     example: 79.85550871384882
+ *     responses:
+ *       201:
+ *         description: Station creation success.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stationId:
+ *                   type: number
+ *                   example: 35840964
+ *                 name:
+ *                   type: string
+ *                   example: "Colombo Bus Station"
+ *                 coordinates:
+ *                   type: object
+ *                   properties:
+ *                     lat:
+ *                       type: number
+ *                       example: 6.9335635889865594
+ *                     log:
+ *                       type: number
+ *                       example: 79.85550871384882
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *       400:
+ *         description: Bad request. Validation errors in input data.
+ *       405:
+ *         description: Method not allowed.
+ *       500:
+ *         description: Internal server error.
+ */
 router.post(
   `${API_PREFIX}/stations`,
   checkSchema(stationSchema),
@@ -41,6 +104,86 @@ router.post(
   }
 );
 
+/**
+ * @swagger
+ * /core-service/v1.3/stations:
+ *   get:
+ *     summary: Retrieve all stations
+ *     description: Retrieve a list of all stations, optionally filtered by name.
+ *     parameters:
+ *       - name: name
+ *         in: query
+ *         description: The name of the station to filter by (optional).
+ *         required: false
+ *         schema:
+ *           type: string
+ *           minLength: 1
+ *           maxLength: 50
+ *           example: "Colombo"
+ *     responses:
+ *       200:
+ *         description: A list of stations.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   stationId:
+ *                     type: number
+ *                     example: 35840964
+ *                   name:
+ *                     type: string
+ *                     example: "Colombo Bus Station"
+ *                   coordinates:
+ *                     type: object
+ *                     properties:
+ *                       lat:
+ *                         type: number
+ *                         example: 6.9335635889865594
+ *                       log:
+ *                         type: number
+ *                         example: 79.85550871384882
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2024-11-23T10:00:00Z"
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2024-11-23T10:00:00Z"
+ *       400:
+ *         description: Bad request. Validation errors in input data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "name must be a string"
+ *       405:
+ *         description: Method not allowed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "method not allowed"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "internal server error"
+ */
 router.get(
   `${API_PREFIX}/stations`,
   query("name")
@@ -67,6 +210,82 @@ router.get(
   }
 );
 
+/**
+ * @swagger
+ * /core-service/v1.3/stations/{stationId}:
+ *   get:
+ *     summary: Retrieve a station by its ID
+ *     description: Retrieve a specific station by its ID.
+ *     parameters:
+ *       - name: stationId
+ *         in: path
+ *         description: The ID of the station to retrieve.
+ *         required: true
+ *         schema:
+ *           type: number
+ *           example: 35840964
+ *     responses:
+ *       200:
+ *         description: The station was found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stationId:
+ *                   type: number
+ *                   example: 35840964
+ *                 name:
+ *                   type: string
+ *                   example: "Colombo Bus Station"
+ *                 coordinates:
+ *                   type: object
+ *                   properties:
+ *                     lat:
+ *                       type: number
+ *                       example: 6.9335635889865594
+ *                     log:
+ *                       type: number
+ *                       example: 79.85550871384882
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *       400:
+ *         description: Bad request. Validation errors in input data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "bad request, stationId should be a number"
+ *       404:
+ *         description: Resource not found. The station with the given ID does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "resource not found"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "internal server error"
+ */
 router.get(
   `${API_PREFIX}/stations/:stationId`,
   param("stationId")
@@ -90,6 +309,101 @@ router.get(
   }
 );
 
+/**
+ * @swagger
+ * /core-service/v1.3/stations/{stationId}:
+ *   put:
+ *     summary: Update a station by its ID
+ *     description: Update the details of an existing station using its ID.
+ *     parameters:
+ *       - name: stationId
+ *         in: path
+ *         description: The ID of the station to update.
+ *         required: true
+ *         schema:
+ *           type: number
+ *           example: 35840964
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Colombo Bus Station"
+ *               coordinates:
+ *                 type: object
+ *                 properties:
+ *                   lat:
+ *                     type: number
+ *                     example: 6.9335635889865594
+ *                   log:
+ *                     type: number
+ *                     example: 79.85550871384882
+ *     responses:
+ *       200:
+ *         description: The station was updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stationId:
+ *                   type: number
+ *                   example: 35840964
+ *                 name:
+ *                   type: string
+ *                   example: "Colombo Bus Station"
+ *                 coordinates:
+ *                   type: object
+ *                   properties:
+ *                     lat:
+ *                       type: number
+ *                       example: 6.9335635889865594
+ *                     log:
+ *                       type: number
+ *                       example: 79.85550871384882
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *       400:
+ *         description: Bad request. Validation errors in input data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "name must be a string"
+ *       404:
+ *         description: Resource not found. The station with the given ID does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "resource not found"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "internal server error"
+ */
 router.put(
   `${API_PREFIX}/stations/:stationId`,
   param("stationId")
@@ -117,6 +431,82 @@ router.put(
   }
 );
 
+/**
+ * @swagger
+ * /core-service/v1.3/stations/{stationId}:
+ *   delete:
+ *     summary: Delete a station by its ID
+ *     description: Delete an existing station using its ID.
+ *     parameters:
+ *       - name: stationId
+ *         in: path
+ *         description: The ID of the station to delete.
+ *         required: true
+ *         schema:
+ *           type: number
+ *           example: 35840964
+ *     responses:
+ *       200:
+ *         description: The station was deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stationId:
+ *                   type: number
+ *                   example: 35840964
+ *                 name:
+ *                   type: string
+ *                   example: "Colombo Bus Station"
+ *                 coordinates:
+ *                   type: object
+ *                   properties:
+ *                     lat:
+ *                       type: number
+ *                       example: 6.9335635889865594
+ *                     log:
+ *                       type: number
+ *                       example: 79.85550871384882
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-11-23T10:00:00Z"
+ *       400:
+ *         description: Bad request. Validation errors in input data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "bad request, stationId should be a number"
+ *       404:
+ *         description: Resource not found. The station with the given ID does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "resource not found"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "internal server error"
+ */
 router.delete(
   `${API_PREFIX}/stations/:stationId`,
   param("stationId")
