@@ -8,7 +8,7 @@ const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "CORE-SERVICE [BUSRIYA.COM]",
-      version: "1.4.0",
+      version: "1.5.0",
       description: "Apis for core services in the busriya system",
       contact: {
         name: "Sanuga Kuruppu [YR3COBSCCOMP232P002]",
@@ -30,11 +30,16 @@ const swaggerOptions = {
         name: "Policy",
         description: "Operations related to policies.",
       },
+      {
+        name: "Route",
+        description: "Operations related to Routes.",
+      },
     ],
   },
   apis: [
     "./src/station/controller/stationController.mjs",
     "./src/policy/controller/policyController.mjs",
+    "./src/route/controller/routeController.mjs",
   ],
 };
 
