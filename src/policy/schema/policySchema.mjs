@@ -32,6 +32,7 @@ export const policySchema = {
     trim: true,
   },
   description: {
+    optional: true,
     isString: {
       errorMessage: "description must be a string",
     },
