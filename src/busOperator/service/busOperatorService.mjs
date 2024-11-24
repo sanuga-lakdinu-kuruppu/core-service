@@ -2,7 +2,7 @@ import { BusOperator } from "../model/busOperatorModel.mjs";
 import AWS from "aws-sdk";
 
 const cognito = new AWS.CognitoIdentityServiceProvider({
-  region: process.env.AWS_REGION,
+  region: process.env.FINAL_AWS_REGION,
 });
 
 export const createNewBusOperator = async (operator) => {
