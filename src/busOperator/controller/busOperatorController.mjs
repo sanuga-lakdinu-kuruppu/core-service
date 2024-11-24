@@ -24,7 +24,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.6/bus-operators:
+ * /core-service/v1.7/bus-operators:
  *   post:
  *     summary: Create a new bus operator
  *     tags:
@@ -220,7 +220,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.6/bus-operators:
+ * /core-service/v1.7/bus-operators:
  *   get:
  *     summary: Get all bus operators
  *     tags:
@@ -326,7 +326,7 @@ router.get(`${API_PREFIX}/bus-operators`, async (request, response) => {
 
 /**
  * @swagger
- * /core-service/v1.6/bus-operators/{operatorId}:
+ * /core-service/v1.7/bus-operators/{operatorId}:
  *   get:
  *     summary: Get a specific bus operator by ID
  *     tags:
@@ -471,7 +471,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.6/bus-operators/{operatorId}:
+ * /core-service/v1.7/bus-operators/{operatorId}:
  *   put:
  *     summary: Update a specific bus operator by ID
  *     tags:
@@ -691,7 +691,7 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.6/bus-operators/{operatorId}:
+ * /core-service/v1.7/bus-operators/{operatorId}:
  *   delete:
  *     summary: Delete a specific bus operator by ID
  *     tags:
