@@ -1,4 +1,6 @@
-export const busOperatorSchema = {
+import { BusWorker } from "../model/busWorkerModel.mjs";
+
+export const busWorkerSchema = {
   "name.firstName": {
     notEmpty: {
       errorMessage: "firstName cannot be empty",
@@ -31,19 +33,39 @@ export const busOperatorSchema = {
     },
     trim: true,
   },
-  company: {
+  type: {
     notEmpty: {
-      errorMessage: "company cannot be empty",
+      errorMessage: "type cannot be empty",
     },
     isString: {
-      errorMessage: "company must be a string",
+      errorMessage: "type must be a string",
     },
     isLength: {
       options: {
-        min: 1,
-        max: 50,
+        max: 20,
       },
-      errorMessage: "company must be between 5 and 50 characters",
+      errorMessage: "type must be greater than 20 characters",
+    },
+    trim: true,
+  },
+  nic: {
+    notEmpty: {
+      errorMessage: "nic cannot be empty",
+    },
+    isString: {
+      errorMessage: "nic must be a string",
+    },
+    isLength: {
+      options: {
+        min: 9,
+        max: 12,
+      },
+      errorMessage: "nic must be between 9 and 12 characters",
+    },
+    matches: {
+      options: [/^(?:\d{9}[vVxX]|\d{12})$/],
+      errorMessage:
+        "nic must be a valid Sri Lankan NIC in the format '123456789V' or '200012345678'",
     },
     trim: true,
   },
