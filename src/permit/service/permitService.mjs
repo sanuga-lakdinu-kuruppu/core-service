@@ -93,6 +93,7 @@ export const getPermitById = async (id) => {
     console.log(`permit getting error ${error}`);
   }
 };
+
 export const getPermitByNumber = async (permitNumber) => {
   try {
     const foundPermit = await Permit.findOne({ permitNumber: permitNumber })
