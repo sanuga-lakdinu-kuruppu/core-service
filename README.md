@@ -1,4 +1,4 @@
-# core-service - v1.8.0
+# core-service - v1.9.0
 
 YR3COBSCCOMP232P002
 
@@ -6,6 +6,6 @@ YR3COBSCCOMP232P002
 
 ###### access url: https://api.busriya.com
 
-###### example: https://api.busriya.com/core-service/v1.8/stations
+###### example: https://api.busriya.com/core-service/v1.9/stations
 
 ###### swagger definition: https://api.busriya.com/core-service/api-docs
