@@ -25,7 +25,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.8/bus-workers:
+ * /core-service/v1.9/bus-workers:
  *   post:
  *     summary: Create a new bus worker
  *     tags:
@@ -189,7 +189,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.8/bus-workers:
+ * /core-service/v1.9/bus-workers:
  *   get:
  *     summary: Retrieve all bus workers
  *     tags:
@@ -287,7 +287,7 @@ router.get(`${API_PREFIX}/bus-workers`, async (request, response) => {
 
 /**
  * @swagger
- * /core-service/v1.8/bus-workers/{workerId}:
+ * /core-service/v1.9/bus-workers/{workerId}:
  *   get:
  *     summary: Retrieve a specific bus worker by ID
  *     tags:
@@ -423,7 +423,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.8/bus-workers/nic/{nic}:
+ * /core-service/v1.9/bus-workers/nic/{nic}:
  *   get:
  *     summary: Retrieve a specific bus worker by NIC
  *     tags:
@@ -569,7 +569,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.8/bus-workers/{workerId}:
+ * /core-service/v1.9/bus-workers/{workerId}:
  *   put:
  *     summary: Update bus worker details
  *     tags:
@@ -767,7 +767,7 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.8/bus-workers/{workerId}:
+ * /core-service/v1.9/bus-workers/{workerId}:
  *   delete:
  *     summary: Delete a bus worker
  *     tags:

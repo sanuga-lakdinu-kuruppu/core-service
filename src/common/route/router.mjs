@@ -9,6 +9,8 @@ import busWorkerRouter from "../../busWorker/controller/busWorkerController.mjs"
 
 import vehicleRouter from "../../vehicle/controller/vehicleController.mjs";
 
+import permitRouter from "../../permit/controller/permitController.mjs";
+
 const router = Router();
 
 router.use(stationRouter);
@@ -17,5 +19,6 @@ router.use(routeRouter);
 router.use(busOperatorRouter);
 router.use(vehicleRouter);
 router.use(busWorkerRouter);
+router.use(permitRouter);
 
 export default router;
