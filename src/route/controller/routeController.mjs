@@ -25,7 +25,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.9/routes:
+ * /core-service/v2.0/routes:
  *   post:
  *     summary: Create a new route
  *     tags:
@@ -151,7 +151,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.9/routes:
+ * /core-service/v2.0/routes:
  *   get:
  *     summary: Retrieve all routes
  *     tags:
@@ -241,7 +241,7 @@ router.get(`${API_PREFIX}/routes`, async (request, response) => {
 
 /**
  * @swagger
- * /core-service/v1.9/routes/{routeId}:
+ * /core-service/v2.0/routes/{routeId}:
  *   get:
  *     summary: Retrieve a specific route by its ID
  *     tags:
@@ -378,7 +378,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.9/routes/routeNumber/{routeNumber}:
+ * /core-service/v2.0/routes/routeNumber/{routeNumber}:
  *   get:
  *     summary: Retrieve a specific route by its route number
  *     tags:
@@ -517,7 +517,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.9/routes/{routeId}:
+ * /core-service/v2.0/routes/{routeId}:
  *   put:
  *     summary: Update a route by its ID
  *     tags:
@@ -683,7 +683,7 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.9/routes/{routeId}:
+ * /core-service/v2.0/routes/{routeId}:
  *   delete:
  *     summary: Delete a route by its ID
  *     tags:
