@@ -24,7 +24,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.9/vehicles:
+ * /core-service/v2.0/vehicles:
  *   post:
  *     summary: Create a new vehicle
  *     tags:
@@ -200,7 +200,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.9/vehicles:
+ * /core-service/v2.0/vehicles:
  *   get:
  *     summary: Get all vehicles
  *     tags:
@@ -305,7 +305,7 @@ router.get(`${API_PREFIX}/vehicles`, async (request, response) => {
 
 /**
  * @swagger
- * /core-service/v1.9/vehicles/registrationNumber/{registrationNumber}:
+ * /core-service/v2.0/vehicles/registrationNumber/{registrationNumber}:
  *   get:
  *     summary: Get a vehicle by its registration number
  *     tags:
@@ -461,7 +461,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.9/vehicles/{vehicleId}:
+ * /core-service/v2.0/vehicles/{vehicleId}:
  *   get:
  *     summary: Get a vehicle by its ID
  *     tags:
@@ -613,7 +613,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.9/vehicles/{vehicleId}:
+ * /core-service/v2.0/vehicles/{vehicleId}:
  *   put:
  *     summary: Update a vehicle by its ID
  *     tags:
@@ -840,7 +840,7 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.9/vehicles/{vehicleId}:
+ * /core-service/v2.0/vehicles/{vehicleId}:
  *   delete:
  *     summary: Delete a vehicle by its ID
  *     tags:
