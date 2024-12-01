@@ -24,7 +24,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.9/permits:
+ * /core-service/v2.0/permits:
  *   post:
  *     summary: Create a new permit
  *     tags:
@@ -166,7 +166,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.9/permits:
+ * /core-service/v2.0/permits:
  *   get:
  *     summary: Retrieve all permits
  *     tags:
@@ -257,7 +257,7 @@ router.get(`${API_PREFIX}/permits`, async (request, response) => {
 
 /**
  * @swagger
- * /core-service/v1.9/permits/{permitId}:
+ * /core-service/v2.0/permits/{permitId}:
  *   get:
  *     summary: Retrieve a permit by its ID
  *     tags:
@@ -386,7 +386,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.9/permits/permitNumber/{permitNumber}:
+ * /core-service/v2.0/permits/permitNumber/{permitNumber}:
  *   get:
  *     summary: Retrieve a permit by its permit number
  *     tags:
@@ -399,7 +399,7 @@ router.get(
  *         schema:
  *           type: string
  *           maxLength: 20
- *         description: Unique permit number of the permit (max length: 20 characters)
+ *         description: Unique permit number of the permit
  *     responses:
  *       200:
  *         description: Details of the permit.
@@ -518,7 +518,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.9/permits/{permitId}:
+ * /core-service/v2.0/permits/{permitId}:
  *   delete:
  *     summary: Delete a permit by its ID
  *     tags:
