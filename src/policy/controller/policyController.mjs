@@ -24,7 +24,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.8/policies:
+ * /core-service/v1.9/policies:
  *   post:
  *     summary: Create a new policy
  *     tags:
@@ -130,7 +130,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.8/policies:
+ * /core-service/v1.9/policies:
  *   get:
  *     summary: Retrieve a list of policies
  *     tags:
@@ -236,7 +236,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.8/policies/{policyId}:
+ * /core-service/v1.9/policies/{policyId}:
  *   get:
  *     summary: Retrieve a policy by its ID
  *     tags:
@@ -334,7 +334,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.8/policies/{policyId}:
+ * /core-service/v1.9/policies/{policyId}:
  *   put:
  *     summary: Update an existing policy
  *     tags:
@@ -459,7 +459,7 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.8/policies/{policyId}:
+ * /core-service/v1.9/policies/{policyId}:
  *   delete:
  *     summary: Delete a policy
  *     tags:

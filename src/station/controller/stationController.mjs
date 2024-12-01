@@ -24,7 +24,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /core-service/v1.8/stations:
+ * /core-service/v1.9/stations:
  *   post:
  *     summary: Create a new station
  *     tags:
@@ -108,7 +108,7 @@ router.post(
 
 /**
  * @swagger
- * /core-service/v1.8/stations:
+ * /core-service/v1.9/stations:
  *   get:
  *     summary: Retrieve all stations
  *     tags:
@@ -216,7 +216,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.8/stations/{stationId}:
+ * /core-service/v1.9/stations/{stationId}:
  *   get:
  *     summary: Retrieve a station by its ID
  *     tags:
@@ -317,7 +317,7 @@ router.get(
 
 /**
  * @swagger
- * /core-service/v1.8/stations/{stationId}:
+ * /core-service/v1.9/stations/{stationId}:
  *   put:
  *     summary: Update a station by its ID
  *     tags:
@@ -441,7 +441,7 @@ router.put(
 
 /**
  * @swagger
- * /core-service/v1.8/stations/{stationId}:
+ * /core-service/v1.9/stations/{stationId}:
  *   delete:
  *     summary: Delete a station by its ID
  *     tags:
