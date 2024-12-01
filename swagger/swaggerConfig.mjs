@@ -19,7 +19,7 @@ const swaggerOptions = {
     servers: [
       {
         url: `${SWAGGER_URL_PRODUCTION}`,
-        description: "Production Stage",
+        description: "PRODUCTION Stage",
       },
       {
         url: `${SWAGGER_URL_LOCAL}`,
