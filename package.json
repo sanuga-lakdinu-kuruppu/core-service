@@ -17,6 +17,7 @@
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
     "mongoose": "^8.8.1",
+    "nodemon": "^3.1.7",
     "serverless": "^4.4.10",
     "serverless-http": "^3.2.0",
     "swagger-jsdoc": "^6.2.8",
