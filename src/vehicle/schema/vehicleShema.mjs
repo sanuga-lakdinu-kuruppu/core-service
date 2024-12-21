@@ -189,10 +189,6 @@ export const vehicleSchema = {
     isNumeric: {
       errorMessage: "bookingClose must be a number",
     },
-    custom: {
-      options: (value) => value <= 10,
-      errorMessage: "bookingClose must be less than 10",
-    },
   },
   cancellationPolicyId: {
     notEmpty: {
