@@ -206,7 +206,7 @@ router.post(
           .send({ error: "email is already registered in the system." });
       }
       data.operatorId = generateShortUuid();
-      data.federatedUserId = data.contact.email;
+      data.federatedUserId = operator.contact.email.split("@")[0];
       const createdOperator = await createNewBusOperator(data);
       return createdOperator
         ? response.status(201).send(createdOperator)
