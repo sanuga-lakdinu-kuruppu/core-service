@@ -124,18 +124,11 @@ const deleteAWSCognitoUser = async (operator) => {
 
 const createAWSCognitoUser = async (operator) => {
   try {
-    const username = operator.contact.email;
-
+    const username = operator.contact.email.split("@")[0];
     const params = {
       UserPoolId: process.env.COGNITOR_USER_POOL_ID_BusOperatorPool,
       Username: username,
-      UserAttributes: [
-        { Name: "email", Value: operator.contact.email },
-        {
-          Name: "name",
-          Value: operator.name.firstName + " " + operator.name.lastName,
-        },
-      ],
+      UserAttributes: [{ Name: "email", Value: operator.contact.email }],
       DesiredDeliveryMediums: ["EMAIL"],
     };
 
