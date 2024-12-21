@@ -93,8 +93,7 @@ const vehicleSchema = new mongoose.Schema(
     bookingClose: {
       type: Number,
       required: true,
-      max: 10,
-      default: 1,
+      default: 15,
     },
     cancellationPolicy: {
       type: mongoose.Schema.Types.ObjectId,
