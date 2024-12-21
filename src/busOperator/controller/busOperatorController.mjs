@@ -197,8 +197,9 @@ router.post(
       return response.status(400).send({ error: result.errors[0].msg });
     const data = matchedData(request);
     try {
+      const federatedUserId = data.contact.email.split("@")[0];
       const foundOperator = await BusOperator.findOne({
-        federatedUserId: data.contact.email,
+        federatedUserId: federatedUserId,
       });
       if (foundOperator) {
         return response
@@ -206,7 +207,7 @@ router.post(
           .send({ error: "email is already registered in the system." });
       }
       data.operatorId = generateShortUuid();
-      data.federatedUserId = operator.contact.email.split("@")[0];
+      data.federatedUserId = federatedUserId;
       const createdOperator = await createNewBusOperator(data);
       return createdOperator
         ? response.status(201).send(createdOperator)
@@ -659,8 +660,9 @@ router.put(
       if (!foundOperator)
         return response.status(404).send({ error: "resource not found" });
 
+      const federatedUserId = data.contact.email.split("@")[0];
       const duplicatedOperator = await BusOperator.findOne({
-        federatedUserId: data.contact.email,
+        federatedUserId: federatedUserId,
       });
 
       if (
