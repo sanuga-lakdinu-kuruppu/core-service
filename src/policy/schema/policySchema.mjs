@@ -38,9 +38,9 @@ export const policySchema = {
     },
     isLength: {
       options: {
-        max: 100,
+        max: 1000,
       },
-      errorMessage: "description less than 100 characters",
+      errorMessage: "description less than 1000 characters",
     },
   },
 };
