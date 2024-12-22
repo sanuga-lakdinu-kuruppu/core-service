@@ -2,21 +2,23 @@ import express from "express";
 import serverless from "serverless-http";
 import createConnection from "./src/common/config/databaseConnection.mjs";
 import routes from "./src/common/route/router.mjs";
-import { swaggerUI, swaggerDocs } from "./swagger/swaggerConfig.mjs";
+import swaggerUI from "swagger-ui-express";
+import YAML from "yamljs";
+import cors from "cors";
 
 const app = express();
 createConnection();
 
 const SERVICE_NAME = process.env.SERVICE;
+const swaggerDocument = YAML.load("./swagger/swagger.yml");
 
 app.use(
   `/${SERVICE_NAME}/api-docs`,
   swaggerUI.serve,
-  swaggerUI.setup(swaggerDocs)
+  swaggerUI.setup(swaggerDocument)
 );
-
 app.use(express.json());
-
+app.use(cors());
 app.use(routes);
 
 // const PORT = process.env.PORT || 5000;

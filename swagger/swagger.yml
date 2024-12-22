@@ -1,0 +1,384 @@
+openapi: "3.0.0"
+info:
+  title: "CORE-SERVICE [BUSRIYA.COM]"
+  version: "2.0.0"
+  description: "APIs for core services in the Busriya system"
+  contact:
+    name: "Sanuga Kuruppu [YR3COBSCCOMP232P002]"
+    email: "sanugakuruppu.info@gmail.com"
+servers:
+- url: "https://api.busriya.com"
+  description: "PRODUCTION"
+- url: "http://localhost:5000"
+  description: "LOCAL"
+security:
+- bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /core-service/v2.0/stations:
+    get:
+      summary: Retrieve all stations
+      tags:
+      - Station
+      description: Retrieve a list of all stations, optionally filtered by `name`.
+      parameters:
+      - name: name
+        in: query
+        description: The name of the station to filter by (optional).
+        required: false
+        schema:
+          type: string
+          example: "Colombo"
+      security: []
+      responses:
+        200:
+          description: A list of stations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    stationId:
+                      type: number
+                      example: 35840964
+                    name:
+                      type: string
+                      example: "Colombo Bus Station"
+                    coordinates:
+                      type: object
+                      properties:
+                        lat:
+                          type: number
+                          example: 6.9335635889865594
+                        log:
+                          type: number
+                          example: 79.85550871384882
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-23T10:00:00Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request.
+        500:
+          description: Internal server error
+    post:
+      summary: Create a new station
+      tags:
+      - Station
+      description: Create a new station with the provided data.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Colombo Bus Station"
+                coordinates:
+                  type: object
+                  properties:
+                    lat:
+                      type: number
+                      example: 6.9335635889865594
+                    log:
+                      type: number
+                      example: 79.85550871384882
+      responses:
+        201:
+          description: Station creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stationId:
+                    type: number
+                    example: 35840964
+                  name:
+                    type: string
+                    example: "Colombo Bus Station"
+                  coordinates:
+                    type: object
+                    properties:
+                      lat:
+                        type: number
+                        example: 6.9335635889865594
+                      log:
+                        type: number
+                        example: 79.85550871384882
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data.
+        401:
+          description: Unauthorized. Authentication required with a valid Bearer token.
+        500:
+          description: Internal server error.
+  /core-service/v2.0/stations/{stationId}:
+    get:
+      summary: Retrieve a station by its ID
+      tags:
+      - Station
+      description: Retrieve a specific station by its ID.
+      security: []
+      parameters:
+      - name: stationId
+        in: path
+        description: The ID of the station to retrieve.
+        required: true
+        schema:
+          type: number
+          example: 35840964
+      responses:
+        200:
+          description: The station was found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stationId:
+                    type: number
+                    example: 35840964
+                  name:
+                    type: string
+                    example: "Colombo Bus Station"
+                  coordinates:
+                    type: object
+                    properties:
+                      lat:
+                        type: number
+                        example: 6.9335635889865594
+                      log:
+                        type: number
+                        example: 79.85550871384882
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, stationId should be a number"
+        404:
+          description: Resource not found. The station with the given ID does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    put:
+      summary: Update a station by its ID
+      tags:
+      - Station
+      description: Update the details of an existing station using its ID.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: stationId
+        in: path
+        description: The ID of the station to update.
+        required: true
+        schema:
+          type: number
+          example: 35840964
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Colombo Bus Station"
+                coordinates:
+                  type: object
+                  properties:
+                    lat:
+                      type: number
+                      example: 6.9335635889865594
+                    log:
+                      type: number
+                      example: 79.85550871384882
+      responses:
+        200:
+          description: The station was updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stationId:
+                    type: number
+                    example: 35840964
+                  name:
+                    type: string
+                    example: "Colombo Bus Station"
+                  coordinates:
+                    type: object
+                    properties:
+                      lat:
+                        type: number
+                        example: 6.9335635889865594
+                      log:
+                        type: number
+                        example: 79.85550871384882
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "name must be a string"
+        404:
+          description: Resource not found. The station with the given ID does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a station by its ID
+      tags:
+      - Station
+      description: Delete an existing station using its ID.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: stationId
+        in: path
+        description: The ID of the station to delete.
+        required: true
+        schema:
+          type: number
+          example: 35840964
+      responses:
+        200:
+          description: The station was deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stationId:
+                    type: number
+                    example: 35840964
+                  name:
+                    type: string
+                    example: "Colombo Bus Station"
+                  coordinates:
+                    type: object
+                    properties:
+                      lat:
+                        type: number
+                        example: 6.9335635889865594
+                      log:
+                        type: number
+                        example: 79.85550871384882
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, stationId should be a number"
+        404:
+          description: Resource not found. The station with the given ID does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
