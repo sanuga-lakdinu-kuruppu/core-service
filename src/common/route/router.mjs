@@ -12,6 +12,7 @@ import vehicleRouter from "../../vehicle/controller/vehicleController.mjs";
 import permitRouter from "../../permit/controller/permitController.mjs";
 
 import scheduleRouter from "../../schedule/controller/scheduleController.mjs";
+import authRouter from "../../authentication/auth.mjs";
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use(vehicleRouter);
 router.use(busWorkerRouter);
 router.use(permitRouter);
 router.use(scheduleRouter);
+router.use(authRouter);
 
 export default router;
