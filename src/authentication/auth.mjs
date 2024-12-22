@@ -11,6 +11,7 @@ import {
   param,
 } from "express-validator";
 import { authSchema } from "./authSchema.mjs";
+import { log } from "../common/util/log.mjs";
 
 const router = Router();
 const client = new CognitoIdentityProviderClient({
@@ -25,17 +26,24 @@ router.post(
   `${API_PREFIX}/authentications`,
   checkSchema(authSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
     const { username, password } = data;
+
     try {
       const secretHash = generateSecretHash(
         username,
         process.env.COGNITO_CLIENT_ID,
         process.env.COGNITO_CLIENT_SECRET
       );
+
       const command = new InitiateAuthCommand({
         AuthFlow: "USER_PASSWORD_AUTH",
         ClientId: process.env.COGNITO_CLIENT_ID,
@@ -46,20 +54,23 @@ router.post(
         },
       });
       const cognitoResponse = await client.send(command);
-      console.log(`login success,user,${username}`);
+
+      log(baseLog, "SUCCESS", {});
       return response.send({
         accessToken: cognitoResponse.AuthenticationResult.AccessToken,
         refreshToken: cognitoResponse.AuthenticationResult.RefreshToken,
         idToken: cognitoResponse.AuthenticationResult.IdToken,
       });
     } catch (error) {
-      console.log(`login failed,user,${username},error, ${error}`);
+      log(baseLog, "FAILED", "invalid credentials");
       return response.status(401).json({ error: "invalid credentials" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/auth*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 

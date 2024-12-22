@@ -13,6 +13,7 @@ import {
   getScheduleById,
   deleteScheduleById,
 } from "../service/scheduleService.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -24,27 +25,39 @@ router.post(
   `${API_PREFIX}/schedules`,
   checkSchema(scheduleSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       data.scheduleId = generateShortUuid();
       const createdSchedule = await createNewSchedule(data);
+
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdSchedule);
     } catch (error) {
-      console.log(`schedule creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/schedules`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundSchedules = await getAllSchedules();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundSchedules);
   } catch (error) {
-    console.log(`schedule getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -55,18 +68,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, scheduleId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { scheduleId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundSchedule = await getScheduleById(scheduleId);
-      if (foundSchedule) return response.send(foundSchedule);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundSchedule) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundSchedule);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`schedule getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -78,26 +102,36 @@ router.delete(
     .isNumeric()
     .withMessage("bad request, scheduleId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { scheduleId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const deletedSchedule = await deleteScheduleById(scheduleId);
-      if (!deletedSchedule)
+
+      if (!deletedSchedule) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`schedule deleted successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(deletedSchedule);
     } catch (error) {
-      console.log(`schedule deleting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/schedules*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 

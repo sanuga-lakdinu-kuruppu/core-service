@@ -15,6 +15,7 @@ import {
 } from "../service/policyService.mjs";
 import { policySchema } from "../schema/policySchema.mjs";
 import { generateShortUuid } from "../../common/util/unique.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -26,16 +27,24 @@ router.post(
   `${API_PREFIX}/policies`,
   checkSchema(policySchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       data.policyId = generateShortUuid();
       const createdPolicy = await createNewPolicy(data);
+
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdPolicy);
     } catch (error) {
-      console.log(`policy creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -50,10 +59,15 @@ router.get(
     .isLength({ min: 1, max: 50 })
     .withMessage("policy name must be between 1 and 50 characters"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const {
         query: { policyName },
       } = request;
@@ -61,9 +75,11 @@ router.get(
         ? { policyName: new RegExp(policyName, "i") }
         : {};
       const foundPolicies = await getAllPolicies(filter);
+
+      log(baseLog, "SUCCESS", {});
       return response.send(foundPolicies);
     } catch (error) {
-      console.log(`policy getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -75,18 +91,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, policyId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { policyId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundPolicy = await getPolicyById(policyId);
-      if (foundPolicy) return response.send(foundPolicy);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundPolicy) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundPolicy);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`policy getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -99,21 +126,28 @@ router.put(
     .withMessage("bad request, policyId should be a number"),
   checkSchema(policySchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { policyId },
       } = request;
       const data = matchedData(request);
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const updatedPolicy = await updatePolicyById(policyId, data);
-      if (!updatedPolicy)
+      if (!updatedPolicy) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`policy updated successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(updatedPolicy);
     } catch (error) {
-      console.log(`policy updating error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -125,26 +159,35 @@ router.delete(
     .isNumeric()
     .withMessage("bad request, policyId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { policyId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const deletedPolicy = await deletePolicyById(policyId);
-      if (!deletedPolicy)
+      if (!deletedPolicy) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`policy deleted successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(deletedPolicy);
     } catch (error) {
-      console.log(`policy deleted error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/policies*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 
