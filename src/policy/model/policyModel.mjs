@@ -32,7 +32,7 @@ const policySchema = new mongoose.Schema(
     description: {
       type: String,
       required: false,
-      maxlength: 100,
+      maxlength: 1000,
     },
   },
   {
