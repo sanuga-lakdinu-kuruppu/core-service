@@ -20,6 +20,88 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
+  # =================== AUTHENTICATION ===================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/authentications:
+    post:
+      summary: Authenticate a user
+      description: Authenticates a user with a username and password using Cognito authentication.
+      security: []
+      tags:
+      - Authentication
+      requestBody:
+        description: User credentials for authentication.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                  example: "johndoe"
+                password:
+                  type: string
+                  description: The password of the user.
+                  example: "password123"
+              required:
+              - username
+              - password
+      responses:
+        200:
+          description: Successfully authenticated the user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: The access token for the authenticated user.
+                    example: "eyJraWQiOiJLTlJtTmY4OGtDNTlqM...mA5FZMjIzZ5A"
+                  refreshToken:
+                    type: string
+                    description: The refresh token for the authenticated user.
+                    example: "def50200816b257bdad9f918..."
+                  idToken:
+                    type: string
+                    description: The ID token for the authenticated user.
+                    example: "eyJraWQiOiJKVTF...H56_PbTzmlVmrIuOwlbNqQ"
+        400:
+          description: Bad request. Invalid request body or missing required fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "username is required"
+        401:
+          description: Invalid credentials provided.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "invalid credentials"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # =================== STATIONS ===================
+  # ================================================
+  # ================================================
   /core-service/v2.0/stations:
     get:
       summary: Retrieve all stations
@@ -364,6 +446,4214 @@ paths:
                     example: "bad request, stationId should be a number"
         404:
           description: Resource not found. The station with the given ID does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # =================== POLICIES ===================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/policies:
+    post:
+      summary: Create a new policy
+      tags:
+      - Policy
+      description: Create a new policy with the provided data. The description field is optional.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policyName:
+                  type: string
+                  example: "Health Insurance"
+                  description: "The name of the policy."
+                type:
+                  type: string
+                  example: "General"
+                  description: "The type of the policy."
+                description:
+                  type: string
+                  example: "Comprehensive health coverage for all employees."
+                  description: "The description of the policy (optional)."
+                  nullable: true
+      responses:
+        201:
+          description: Policy creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policyId:
+                    type: string
+                    example: "a1b2c3d4e5"
+                  policyName:
+                    type: string
+                    example: "Health Insurance"
+                  type:
+                    type: string
+                    example: "General"
+                  description:
+                    type: string
+                    example: "Comprehensive health coverage for all employees."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "name must be a string"
+        405:
+          description: Method not allowed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "method not allowed"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    get:
+      summary: Retrieve a list of policies
+      tags:
+      - Policy
+      description: Retrieve a list of policies, optionally filtered by `policyName`.
+      security: []
+      parameters:
+      - name: policyName
+        in: query
+        description: The name of the policy to filter by
+        required: false
+        schema:
+          type: string
+          example: "Health Insurance"
+          maxLength: 50
+      responses:
+        200:
+          description: A list of policies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    policyId:
+                      type: string
+                      example: "a1b2c3d4e5"
+                    policyName:
+                      type: string
+                      example: "Health Insurance"
+                    type:
+                      type: string
+                      example: "General"
+                    description:
+                      type: string
+                      example: "Comprehensive health coverage for all employees."
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-23T10:00:00Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in query parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "policy name must be a string"
+        405:
+          description: Method not allowed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "method not allowed"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/policies/{policyId}:
+    get:
+      summary: Retrieve a policy by its ID
+      tags:
+      - Policy
+      description: Retrieve a single policy using its unique identifier (`policyId`).
+      security: []
+      parameters:
+      - name: policyId
+        in: path
+        description: The unique ID of the policy.
+        required: true
+        schema:
+          type: integer
+          example: 123
+      responses:
+        200:
+          description: Successfully retrieved the policy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policyId:
+                    type: integer
+                    example: 123
+                  policyName:
+                    type: string
+                    example: "Health Insurance"
+                  type:
+                    type: string
+                    example: "General"
+                  description:
+                    type: string
+                    example: "Comprehensive health coverage for all employees."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in the input.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, policyId should be a number"
+        404:
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    put:
+      summary: Update an existing policy
+      tags:
+      - Policy
+      description: Update the details of a policy using its unique identifier (`policyId`).
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: policyId
+        in: path
+        description: The unique ID of the policy to be updated.
+        required: true
+        schema:
+          type: integer
+          example: 123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policyName:
+                  type: string
+                  example: "Updated Health Insurance"
+                  description: "The updated name of the policy."
+                type:
+                  type: string
+                  example: "General"
+                  description: "The updated type of the policy."
+                description:
+                  type: string
+                  example: "Updated description for comprehensive health coverage."
+                  description: "The updated description of the policy (optional)."
+                  nullable: true
+              required:
+              - policyName
+              - type
+      responses:
+        200:
+          description: Successfully updated the policy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policyId:
+                    type: integer
+                    example: 123
+                  policyName:
+                    type: string
+                    example: "Updated Health Insurance"
+                  type:
+                    type: string
+                    example: "General"
+                  description:
+                    type: string
+                    example: "Updated description for comprehensive health coverage."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T12:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data or query parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "policyId should be a number"
+        404:
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a policy
+      tags:
+      - Policy
+      description: Deletes a policy identified by its unique `policyId`.
+      parameters:
+      - name: policyId
+        in: path
+        description: The unique ID of the policy to be deleted.
+        security:
+        - bearerAuth: []
+        required: true
+        schema:
+          type: integer
+          example: 47970318
+      responses:
+        200:
+          description: Successfully deleted the policy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policyId:
+                    type: integer
+                    example: 47970318
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T07:59:41.258Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T07:59:41.258Z"
+                  policyName:
+                    type: string
+                    example: "Frist Payment Policy"
+                  type:
+                    type: string
+                    example: "FULL_REFUND"
+                  description:
+                    type: string
+                    example: "Sample description"
+        400:
+          description: Bad request. Validation errors in query parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, policyId should be a number"
+        404:
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # =================== ROUTES =====================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/routes:
+    post:
+      summary: Create a new route
+      tags:
+      - Route
+      description: Create a new route with the provided data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                routeNumber:
+                  type: string
+                  example: "ACB-43290"
+                routeName:
+                  type: string
+                  example: "Colombo-Matara"
+                travelDistance:
+                  type: string
+                  example: "56KM"
+                travelDuration:
+                  type: string
+                  example: "1.5h"
+                startStationId:
+                  type: number
+                  example: 55908702
+                endStationId:
+                  type: number
+                  example: 55908702
+      responses:
+        201:
+          description: Route creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routeId:
+                    type: number
+                    example: 48105350
+                  routeNumber:
+                    type: string
+                    example: "ACB-43290"
+                  routeName:
+                    type: string
+                    example: "Colombo-Matara"
+                  travelDistance:
+                    type: string
+                    example: "56KM"
+                  travelDuration:
+                    type: string
+                    example: "1.5h"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data.
+        405:
+          description: Method not allowed.
+        500:
+          description: Internal server error.
+    get:
+      summary: Retrieve all routes
+      tags:
+      - Route
+      description: Retrieve a list of all available routes with their details.
+      security: []
+      responses:
+        200:
+          description: A list of routes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    routeId:
+                      type: number
+                      example: 48105350
+                    routeNumber:
+                      type: string
+                      example: "ACB-43290"
+                    routeName:
+                      type: string
+                      example: "Colombo-Matara"
+                    travelDistance:
+                      type: string
+                      example: "56KM"
+                    travelDuration:
+                      type: string
+                      example: "1.5h"
+                    startLocation:
+                      type: object
+                      properties:
+                        coordinates:
+                          type: object
+                          properties:
+                            lat:
+                              type: number
+                              example: 6.933549671456952
+                            log:
+                              type: number
+                              example: 79.85550999641683
+                        stationId:
+                          type: number
+                          example: 55908702
+                        name:
+                          type: string
+                          example: "Matara"
+                    endLocation:
+                      type: object
+                      properties:
+                        coordinates:
+                          type: object
+                          properties:
+                            lat:
+                              type: number
+                              example: 6.933549671456952
+                            log:
+                              type: number
+                              example: 79.85550999641683
+                        stationId:
+                          type: number
+                          example: 55908702
+                        name:
+                          type: string
+                          example: "Matara"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-23T10:00:00Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-23T10:00:00Z"
+        500:
+          description: Internal server error.
+  /core-service/v2.0/routes/{routeId}:
+    get:
+      summary: Retrieve a specific route by its ID
+      tags:
+      - Route
+      description: Fetch the details of a specific route using its unique `routeId`.
+      security: []
+      parameters:
+      - name: routeId
+        in: path
+        required: true
+        description: The unique identifier of the route.
+        schema:
+          type: number
+          example: 48105350
+      responses:
+        200:
+          description: Route details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routeId:
+                    type: number
+                    example: 48105350
+                  routeNumber:
+                    type: string
+                    example: "ACB-43290"
+                  routeName:
+                    type: string
+                    example: "Colombo-Matara"
+                  travelDistance:
+                    type: string
+                    example: "56KM"
+                  travelDuration:
+                    type: string
+                    example: "1.5h"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. The `routeId` is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, routeId should be a number"
+        404:
+          description: Route not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    put:
+      summary: Update a route by its ID
+      tags:
+      - Route
+      description: Update the details of an existing route using its `routeId`.
+      parameters:
+      - name: routeId
+        in: path
+        required: true
+        description: The unique identifier of the route.
+        schema:
+          type: number
+          example: 48105350
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                routeNumber:
+                  type: string
+                  example: "ACB-43290"
+                routeName:
+                  type: string
+                  example: "Colombo-Matara"
+                travelDistance:
+                  type: string
+                  example: "56KM"
+                travelDuration:
+                  type: string
+                  example: "1.5h"
+                startStationId:
+                  type: number
+                  example: 55908702
+                endStationId:
+                  type: number
+                  example: 55908702
+      responses:
+        200:
+          description: Route updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routeId:
+                    type: number
+                    example: 48105350
+                  routeNumber:
+                    type: string
+                    example: "ACB-43290"
+                  routeName:
+                    type: string
+                    example: "Colombo-Matara"
+                  travelDistance:
+                    type: string
+                    example: "56KM"
+                  travelDuration:
+                    type: string
+                    example: "1.5h"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T11:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data or invalid `routeId`.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, routeId should be a number"
+        404:
+          description: Route not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a route by its ID
+      tags:
+      - Route
+      description: Delete a route by its unique `routeId`.
+      parameters:
+      - name: routeId
+        in: path
+        required: true
+        description: The unique identifier of the route.
+        schema:
+          type: number
+          example: 48105350
+      responses:
+        200:
+          description: Route deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routeId:
+                    type: number
+                    example: 48105350
+                  routeNumber:
+                    type: string
+                    example: "ACB-43290"
+                  routeName:
+                    type: string
+                    example: "Colombo-Matara"
+                  travelDistance:
+                    type: string
+                    example: "56KM"
+                  travelDuration:
+                    type: string
+                    example: "1.5h"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T11:00:00Z"
+        400:
+          description: Bad request. Validation errors in input data or invalid `routeId`.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, routeId should be a number"
+        404:
+          description: Route not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/routes/routeNumber/{routeNumber}:
+    get:
+      summary: Retrieve a specific route by its route number
+      tags:
+      - Route
+      description: Fetch the details of a specific route using its unique `routeNumber`.
+      security: []
+      parameters:
+      - name: routeNumber
+        in: path
+        required: true
+        description: The unique identifier of the route as a string.
+        schema:
+          type: string
+          example: "ACB-43290"
+      responses:
+        200:
+          description: Route details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routeId:
+                    type: number
+                    example: 48105350
+                  routeNumber:
+                    type: string
+                    example: "ACB-43290"
+                  routeName:
+                    type: string
+                    example: "Colombo-Matara"
+                  travelDistance:
+                    type: string
+                    example: "56KM"
+                  travelDuration:
+                    type: string
+                    example: "1.5h"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-23T10:00:00Z"
+        400:
+          description: Bad request. The `routeNumber` is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, routeNumber should be a String"
+        404:
+          description: Route not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # ================ BUS OPERATORS =================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/bus-operators:
+    post:
+      summary: Create a new bus operator
+      tags:
+      - Bus Operator
+      description: This endpoint allows users to create a new bus operator with required details such as name, contact information, and company.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: "Sanuga"
+                    lastName:
+                      type: string
+                      example: "Kuruppu"
+                company:
+                  type: string
+                  example: "SuperBus Services"
+                contact:
+                  type: object
+                  properties:
+                    mobile:
+                      type: string
+                      example: "+94778060563"
+                    email:
+                      type: string
+                      format: email
+                      example: "sanugakuruppu.info@gmail.com"
+                    address:
+                      type: object
+                      properties:
+                        no:
+                          type: string
+                          example: "5A"
+                        street1:
+                          type: string
+                          example: "Main Street"
+                        street2:
+                          type: string
+                          example: "Colombo 3"
+                        street3:
+                          type: string
+                          example: "Near Central Park"
+                        city:
+                          type: string
+                          example: "Colombo"
+                        district:
+                          type: string
+                          example: "Colombo"
+                        province:
+                          type: string
+                          example: "Western"
+      responses:
+        201:
+          description: Bus operator successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operatorId:
+                    type: integer
+                    example: 26126716
+                  federatedUserId:
+                    type: string
+                    example: "sanugakuruppu.info@gmail.com"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T08:54:54.114Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T08:54:54.114Z"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  company:
+                    type: string
+                    example: "SuperBus Services"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        format: email
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Email is already registered in the system."
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error."
+    get:
+      summary: Get all bus operators
+      tags:
+      - Bus Operator
+      description: This endpoint retrieves a list of all bus operators.
+      security: []
+      responses:
+        200:
+          description: A list of bus operators
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    operatorId:
+                      type: integer
+                      example: 80398012
+                    federatedUserId:
+                      type: string
+                      example: "sanugakuruppu.info@gmail.com"
+                    name:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                          example: "Sanuga"
+                        lastName:
+                          type: string
+                          example: "Kuruppu"
+                    company:
+                      type: string
+                      example: "SuperBus Services"
+                    contact:
+                      type: object
+                      properties:
+                        mobile:
+                          type: string
+                          example: "+94778060563"
+                        email:
+                          type: string
+                          format: email
+                          example: "sanugakuruppu.info@gmail.com"
+                        address:
+                          type: object
+                          properties:
+                            no:
+                              type: string
+                              example: "5A"
+                            street1:
+                              type: string
+                              example: "Main Street"
+                            street2:
+                              type: string
+                              example: "Colombo 3"
+                            street3:
+                              type: string
+                              example: "Near Central Park"
+                            city:
+                              type: string
+                              example: "Colombo"
+                            district:
+                              type: string
+                              example: "Colombo"
+                            province:
+                              type: string
+                              example: "Western"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-24T09:09:23.983Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-24T09:09:23.983Z"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/bus-operators/{operatorId}:
+    get:
+      summary: Get a specific bus operator by ID
+      tags:
+      - Bus Operator
+      description: This endpoint retrieves the details of a specific bus operator based on the operator ID.
+      security: []
+      parameters:
+      - name: operatorId
+        in: path
+        description: The unique identifier for the bus operator
+        required: true
+        schema:
+          type: integer
+          example: 80398012
+      responses:
+        200:
+          description: A single bus operator's details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operatorId:
+                    type: integer
+                    example: 80398012
+                  federatedUserId:
+                    type: string
+                    example: "sanugakuruppu.info@gmail.com"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  company:
+                    type: string
+                    example: "SuperBus Services"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        format: email
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T09:09:23.983Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T09:09:23.983Z"
+        400:
+          description: Bad request, operatorId should be a number
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, operatorId should be a number"
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    put:
+      summary: Update a specific bus operator by ID
+      tags:
+      - Bus Operator
+      description: This endpoint updates the details of a specific bus operator based on the operator ID.
+      parameters:
+      - name: operatorId
+        in: path
+        description: The unique identifier for the bus operator
+        required: true
+        schema:
+          type: integer
+          example: 80398012
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: "Sanuga"
+                    lastName:
+                      type: string
+                      example: "Kuruppu"
+                company:
+                  type: string
+                  example: "SuperBus Services"
+                contact:
+                  type: object
+                  properties:
+                    mobile:
+                      type: string
+                      example: "+94778060563"
+                    email:
+                      type: string
+                      format: email
+                      example: "sanugakuruppu.info@gmail.com"
+                    address:
+                      type: object
+                      properties:
+                        no:
+                          type: string
+                          example: "5A"
+                        street1:
+                          type: string
+                          example: "Main Street"
+                        street2:
+                          type: string
+                          example: "Colombo 3"
+                        street3:
+                          type: string
+                          example: "Near Central Park"
+                        city:
+                          type: string
+                          example: "Colombo"
+                        district:
+                          type: string
+                          example: "Colombo"
+                        province:
+                          type: string
+                          example: "Western"
+      responses:
+        200:
+          description: Successfully updated bus operator details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operatorId:
+                    type: integer
+                    example: 80398012
+                  federatedUserId:
+                    type: string
+                    example: "sanugakuruppu.info@gmail.com"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  company:
+                    type: string
+                    example: "SuperBus Services"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        format: email
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T09:09:23.983Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T09:12:06.105Z"
+        400:
+          description: Bad request, operatorId should be a number or email is already registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, operatorId should be a number"
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a specific bus operator by ID
+      tags:
+      - Bus Operator
+      description: This endpoint deletes a specific bus operator based on the operator ID.
+      parameters:
+      - name: operatorId
+        in: path
+        description: The unique identifier for the bus operator to be deleted
+        required: true
+        schema:
+          type: integer
+          example: 80398012
+      responses:
+        200:
+          description: Successfully deleted the bus operator
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operatorId:
+                    type: integer
+                    example: 80398012
+                  federatedUserId:
+                    type: string
+                    example: "sanugakuruppu.info@gmail.com"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  company:
+                    type: string
+                    example: "SuperBus Services"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        format: email
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T09:09:23.983Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T09:12:06.105Z"
+        400:
+          description: Bad request, operatorId should be a number
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, operatorId should be a number"
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # ================ VEHICLES =================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/vehicles:
+    post:
+      summary: Create a new vehicle
+      tags:
+      - Vehicle
+      description: Create a new vehicle with the provided data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                registrationNumber:
+                  type: string
+                  example: "ABC12345"
+                model:
+                  type: string
+                  example: "Volvo 960"
+                capacity:
+                  type: number
+                  example: 50
+                type:
+                  type: string
+                  example: "Luxury"
+                status:
+                  type: string
+                  example: "ACTIVE"
+                airCondition:
+                  type: boolean
+                  example: true
+                adjustableSeats:
+                  type: boolean
+                  example: true
+                chargingCapability:
+                  type: boolean
+                  example: false
+                restStops:
+                  type: boolean
+                  example: true
+                movie:
+                  type: boolean
+                  example: false
+                music:
+                  type: boolean
+                  example: true
+                cupHolder:
+                  type: boolean
+                  example: true
+                emergencyExit:
+                  type: boolean
+                  example: true
+                pricePerSeat:
+                  type: number
+                  example: 7500
+                bookingClose:
+                  type: number
+                  example: 2
+                cancellationPolicyId:
+                  type: number
+                  example: 76930122
+                busOperatorId:
+                  type: number
+                  example: 101
+      responses:
+        201:
+          description: Vehicle creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicleId:
+                    type: number
+                    example: 54395929
+                  registrationNumber:
+                    type: string
+                    example: "ABC12345"
+                  model:
+                    type: string
+                    example: "Volvo 960"
+                  capacity:
+                    type: number
+                    example: 50
+                  type:
+                    type: string
+                    example: "Luxury"
+                  status:
+                    type: string
+                    example: "ACTIVE"
+                  airCondition:
+                    type: boolean
+                    example: true
+                  adjustableSeats:
+                    type: boolean
+                    example: true
+                  chargingCapability:
+                    type: boolean
+                    example: false
+                  restStops:
+                    type: boolean
+                    example: true
+                  movie:
+                    type: boolean
+                    example: false
+                  music:
+                    type: boolean
+                    example: true
+                  cupHolder:
+                    type: boolean
+                    example: true
+                  emergencyExit:
+                    type: boolean
+                    example: true
+                  pricePerSeat:
+                    type: number
+                    example: 7500
+                  bookingClose:
+                    type: number
+                    example: 2
+                  cancellationPolicy:
+                    type: object
+                    properties:
+                      policyId:
+                        type: number
+                        example: 76930122
+                      policyName:
+                        type: string
+                        example: "First Payment Policy"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 101
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+        400:
+          description: Bad request. Validation errors in input data.
+        405:
+          description: Method not allowed.
+        500:
+          description: Internal server error.
+    get:
+      summary: Get all vehicles
+      tags:
+      - Vehicle
+      description: Retrieve a list of all available vehicles with their details.
+      security: []
+      responses:
+        200:
+          description: A list of vehicles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    vehicleId:
+                      type: number
+                      example: 54395929
+                    registrationNumber:
+                      type: string
+                      example: "ABC12345"
+                    model:
+                      type: string
+                      example: "Volvo 960"
+                    capacity:
+                      type: number
+                      example: 50
+                    type:
+                      type: string
+                      example: "Luxury"
+                    status:
+                      type: string
+                      example: "ACTIVE"
+                    airCondition:
+                      type: boolean
+                      example: true
+                    adjustableSeats:
+                      type: boolean
+                      example: true
+                    chargingCapability:
+                      type: boolean
+                      example: false
+                    restStops:
+                      type: boolean
+                      example: true
+                    movie:
+                      type: boolean
+                      example: false
+                    music:
+                      type: boolean
+                      example: true
+                    cupHolder:
+                      type: boolean
+                      example: true
+                    emergencyExit:
+                      type: boolean
+                      example: true
+                    pricePerSeat:
+                      type: number
+                      example: 7500
+                    bookingClose:
+                      type: number
+                      example: 2
+                    cancellationPolicy:
+                      type: object
+                      properties:
+                        policyId:
+                          type: number
+                          example: 76930122
+                        policyName:
+                          type: string
+                          example: "First Payment Policy"
+                    busOperator:
+                      type: object
+                      properties:
+                        operatorId:
+                          type: number
+                          example: 29239246
+                        company:
+                          type: string
+                          example: "SuperBus Services"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-24T11:42:17.970Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-24T11:42:17.970Z"
+        500:
+          description: Internal server error.
+  /core-service/v2.0/vehicles/registrationNumber/{registrationNumber}:
+    get:
+      summary: Get a vehicle by its registration number
+      tags:
+      - Vehicle
+      description: Retrieve a specific vehicle's details using its registration number.
+      security: []
+      parameters:
+      - in: path
+        name: registrationNumber
+        required: true
+        description: The unique registration number of the vehicle.
+        schema:
+          type: string
+          example: "ABC12345"
+      responses:
+        200:
+          description: Vehicle details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicleId:
+                    type: number
+                    example: 54395929
+                  registrationNumber:
+                    type: string
+                    example: "ABC12345"
+                  model:
+                    type: string
+                    example: "Volvo 960"
+                  capacity:
+                    type: number
+                    example: 50
+                  type:
+                    type: string
+                    example: "Luxury"
+                  status:
+                    type: string
+                    example: "ACTIVE"
+                  airCondition:
+                    type: boolean
+                    example: true
+                  adjustableSeats:
+                    type: boolean
+                    example: true
+                  chargingCapability:
+                    type: boolean
+                    example: false
+                  restStops:
+                    type: boolean
+                    example: true
+                  movie:
+                    type: boolean
+                    example: false
+                  music:
+                    type: boolean
+                    example: true
+                  cupHolder:
+                    type: boolean
+                    example: true
+                  emergencyExit:
+                    type: boolean
+                    example: true
+                  pricePerSeat:
+                    type: number
+                    example: 7500
+                  bookingClose:
+                    type: number
+                    example: 2
+                  cancellationPolicy:
+                    type: object
+                    properties:
+                      policyId:
+                        type: number
+                        example: 76930122
+                      policyName:
+                        type: string
+                        example: "First Payment Policy"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+        400:
+          description: Bad request due to invalid registration number.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, registrationNumber should be a String"
+        404:
+          description: Vehicle not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/vehicles/{vehicleId}:
+    get:
+      summary: Get a vehicle by its ID
+      tags:
+      - Vehicle
+      description: Retrieve a specific vehicle's details using its ID.
+      security: []
+      parameters:
+      - in: path
+        name: vehicleId
+        required: true
+        description: The unique ID of the vehicle.
+        schema:
+          type: integer
+          example: 54395929
+      responses:
+        200:
+          description: Vehicle details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicleId:
+                    type: number
+                    example: 54395929
+                  registrationNumber:
+                    type: string
+                    example: "ABC12345"
+                  model:
+                    type: string
+                    example: "Volvo 960"
+                  capacity:
+                    type: number
+                    example: 50
+                  type:
+                    type: string
+                    example: "Luxury"
+                  status:
+                    type: string
+                    example: "ACTIVE"
+                  airCondition:
+                    type: boolean
+                    example: true
+                  adjustableSeats:
+                    type: boolean
+                    example: true
+                  chargingCapability:
+                    type: boolean
+                    example: false
+                  restStops:
+                    type: boolean
+                    example: true
+                  movie:
+                    type: boolean
+                    example: false
+                  music:
+                    type: boolean
+                    example: true
+                  cupHolder:
+                    type: boolean
+                    example: true
+                  emergencyExit:
+                    type: boolean
+                    example: true
+                  pricePerSeat:
+                    type: number
+                    example: 7500
+                  bookingClose:
+                    type: number
+                    example: 2
+                  cancellationPolicy:
+                    type: object
+                    properties:
+                      policyId:
+                        type: number
+                        example: 76930122
+                      policyName:
+                        type: string
+                        example: "First Payment Policy"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+        400:
+          description: Bad request due to invalid vehicleId.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, vehicleId should be a number"
+        404:
+          description: Vehicle not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    put:
+      summary: Update a vehicle by its ID
+      tags:
+      - Vehicle
+      description: Update the details of a specific vehicle using its ID.
+      parameters:
+      - in: path
+        name: vehicleId
+        required: true
+        description: The unique ID of the vehicle to be updated.
+        schema:
+          type: integer
+          example: 54395929
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                registrationNumber:
+                  type: string
+                  example: "ABC12345"
+                model:
+                  type: string
+                  example: "Volvo 960"
+                capacity:
+                  type: integer
+                  example: 50
+                type:
+                  type: string
+                  example: "Luxury"
+                status:
+                  type: string
+                  enum: [ ACTIVE, INACTIVE ]
+                  example: "ACTIVE"
+                airCondition:
+                  type: boolean
+                  example: true
+                adjustableSeats:
+                  type: boolean
+                  example: true
+                chargingCapability:
+                  type: boolean
+                  example: false
+                restStops:
+                  type: boolean
+                  example: true
+                movie:
+                  type: boolean
+                  example: false
+                music:
+                  type: boolean
+                  example: true
+                cupHolder:
+                  type: boolean
+                  example: true
+                emergencyExit:
+                  type: boolean
+                  example: true
+                pricePerSeat:
+                  type: number
+                  example: 7500
+                bookingClose:
+                  type: integer
+                  example: 2
+                cancellationPolicy:
+                  type: object
+                  properties:
+                    policyId:
+                      type: integer
+                      example: 76930122
+                    policyName:
+                      type: string
+                      example: "First Payment Policy"
+                busOperator:
+                  type: object
+                  properties:
+                    operatorId:
+                      type: integer
+                      example: 29239246
+                    company:
+                      type: string
+                      example: "SuperBus Services"
+      responses:
+        200:
+          description: Vehicle details updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicleId:
+                    type: number
+                    example: 54395929
+                  registrationNumber:
+                    type: string
+                    example: "ABC12345"
+                  model:
+                    type: string
+                    example: "Volvo 960"
+                  capacity:
+                    type: number
+                    example: 50
+                  type:
+                    type: string
+                    example: "Luxury"
+                  status:
+                    type: string
+                    example: "ACTIVE"
+                  airCondition:
+                    type: boolean
+                    example: true
+                  adjustableSeats:
+                    type: boolean
+                    example: true
+                  chargingCapability:
+                    type: boolean
+                    example: false
+                  restStops:
+                    type: boolean
+                    example: true
+                  movie:
+                    type: boolean
+                    example: false
+                  music:
+                    type: boolean
+                    example: true
+                  cupHolder:
+                    type: boolean
+                    example: true
+                  emergencyExit:
+                    type: boolean
+                    example: true
+                  pricePerSeat:
+                    type: number
+                    example: 7500
+                  bookingClose:
+                    type: number
+                    example: 2
+                  cancellationPolicy:
+                    type: object
+                    properties:
+                      policyId:
+                        type: number
+                        example: 76930122
+                      policyName:
+                        type: string
+                        example: "First Payment Policy"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+        400:
+          description: Bad request due to invalid input.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, vehicleId should be a number"
+        404:
+          description: Vehicle not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a vehicle by its ID
+      tags:
+      - Vehicle
+      description: Deletes a specific vehicle using its unique ID.
+      parameters:
+      - in: path
+        name: vehicleId
+        required: true
+        description: The unique ID of the vehicle to be deleted.
+        schema:
+          type: integer
+          example: 54395929
+      responses:
+        200:
+          description: Vehicle successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicleId:
+                    type: number
+                    example: 54395929
+                  registrationNumber:
+                    type: string
+                    example: "ABC12345"
+                  model:
+                    type: string
+                    example: "Volvo 960"
+                  capacity:
+                    type: number
+                    example: 50
+                  type:
+                    type: string
+                    example: "Luxury"
+                  status:
+                    type: string
+                    example: "ACTIVE"
+                  airCondition:
+                    type: boolean
+                    example: true
+                  adjustableSeats:
+                    type: boolean
+                    example: true
+                  chargingCapability:
+                    type: boolean
+                    example: false
+                  restStops:
+                    type: boolean
+                    example: true
+                  movie:
+                    type: boolean
+                    example: false
+                  music:
+                    type: boolean
+                    example: true
+                  cupHolder:
+                    type: boolean
+                    example: true
+                  emergencyExit:
+                    type: boolean
+                    example: true
+                  pricePerSeat:
+                    type: number
+                    example: 7500
+                  bookingClose:
+                    type: number
+                    example: 2
+                  cancellationPolicy:
+                    type: object
+                    properties:
+                      policyId:
+                        type: number
+                        example: 76930122
+                      policyName:
+                        type: string
+                        example: "First Payment Policy"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-24T11:42:17.970Z"
+        400:
+          description: Bad request due to invalid input.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Bad request, vehicleId should be a number"
+        404:
+          description: Vehicle not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Vehicle not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+  # ================== BUS WORKER ==================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/bus-workers:
+    post:
+      summary: Create a new bus worker
+      tags:
+      - Bus Worker
+      description: Create a new bus worker with the provided data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: "Sanuga"
+                    lastName:
+                      type: string
+                      example: "Kuruppu"
+                nic:
+                  type: string
+                  example: "200127201635"
+                type:
+                  type: string
+                  example: "DRIVER"
+                contact:
+                  type: object
+                  properties:
+                    mobile:
+                      type: string
+                      example: "+94778060563"
+                    email:
+                      type: string
+                      example: "sanugakuruppu.info@gmail.com"
+                    address:
+                      type: object
+                      properties:
+                        no:
+                          type: string
+                          example: "5A"
+                        street1:
+                          type: string
+                          example: "Main Street"
+                        street2:
+                          type: string
+                          example: "Colombo 3"
+                        street3:
+                          type: string
+                          example: "Near Central Park"
+                        city:
+                          type: string
+                          example: "Colombo"
+                        district:
+                          type: string
+                          example: "Colombo"
+                        province:
+                          type: string
+                          example: "Western"
+      responses:
+        201:
+          description: Bus worker creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workerId:
+                    type: number
+                    example: 25856546
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-29T05:30:56.563Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-29T05:30:56.563Z"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  nic:
+                    type: string
+                    example: "200127201635"
+                  type:
+                    type: string
+                    example: "DRIVER"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+        400:
+          description: Bad request. Validation errors in input data.
+        405:
+          description: Method not allowed.
+        500:
+          description: Internal server error.
+    get:
+      summary: Retrieve all bus workers
+      tags:
+      - Bus Worker
+      description: Retrieve a list of all bus workers with their details.
+      security: []
+      responses:
+        200:
+          description: A list of bus workers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    workerId:
+                      type: number
+                      example: 54568841
+                    name:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                          example: "Sanuga"
+                        lastName:
+                          type: string
+                          example: "Kuruppu"
+                    contact:
+                      type: object
+                      properties:
+                        mobile:
+                          type: string
+                          example: "+94778060563"
+                        email:
+                          type: string
+                          example: "sanugakuruppu.info@gmail.com"
+                        address:
+                          type: object
+                          properties:
+                            no:
+                              type: string
+                              example: "5A"
+                            street1:
+                              type: string
+                              example: "Main Street"
+                            street2:
+                              type: string
+                              example: "Colombo 3"
+                            street3:
+                              type: string
+                              example: "Near Central Park"
+                            city:
+                              type: string
+                              example: "Colombo"
+                            district:
+                              type: string
+                              example: "Colombo"
+                            province:
+                              type: string
+                              example: "Western"
+                    type:
+                      type: string
+                      example: "DRIVER"
+                    nic:
+                      type: string
+                      example: "200127016535"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-28T17:34:24.743Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-11-28T17:34:24.743Z"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/bus-workers/{workerId}:
+    get:
+      summary: Retrieve a specific bus worker by ID
+      tags:
+      - Bus Worker
+      description: Retrieve details of a bus worker using their unique worker ID.
+      security: []
+      parameters:
+      - in: path
+        name: workerId
+        required: true
+        schema:
+          type: number
+        description: The unique ID of the bus worker.
+      responses:
+        200:
+          description: Worker details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workerId:
+                    type: number
+                    example: 54568841
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+                  type:
+                    type: string
+                    example: "DRIVER"
+                  nic:
+                    type: string
+                    example: "200127016535"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-28T17:34:24.743Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-28T17:34:24.743Z"
+        400:
+          description: Bad request. Invalid worker ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, workerId should be a number"
+        404:
+          description: Worker not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    put:
+      summary: Update bus worker details
+      tags:
+      - Bus Worker
+      description: Updates the details of a specific bus worker using their workerId.
+      parameters:
+      - in: path
+        name: workerId
+        required: true
+        schema:
+          type: integer
+          example: 54568841
+        description: The unique ID of the bus worker.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: "dassfaanuga"
+                    lastName:
+                      type: string
+                      example: "Kuruppu"
+                nic:
+                  type: string
+                  example: "200127201635"
+                  description: Sri Lankan NIC number in valid format.
+                type:
+                  type: string
+                  enum: [ DRIVER, CONDUCTOR ]
+                  example: "DRIVER"
+                contact:
+                  type: object
+                  properties:
+                    mobile:
+                      type: string
+                      example: "+94778060563"
+                    email:
+                      type: string
+                      example: "sanugakuruppu.info@gmail.com"
+                    address:
+                      type: object
+                      properties:
+                        no:
+                          type: string
+                          example: "5A"
+                        street1:
+                          type: string
+                          example: "Main Street"
+                        street2:
+                          type: string
+                          example: "Colombo 3"
+                        street3:
+                          type: string
+                          example: "Near Central Park"
+                        city:
+                          type: string
+                          example: "Colombo"
+                        district:
+                          type: string
+                          example: "Colombo"
+                        province:
+                          type: string
+                          example: "Western"
+      responses:
+        200:
+          description: Worker updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workerId:
+                    type: integer
+                    example: 54568841
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-28T17:34:24.743Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-29T05:39:10.590Z"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "dassfaanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  type:
+                    type: string
+                    example: "DRIVER"
+                  nic:
+                    type: string
+                    example: "200127201635"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+        400:
+          description: Bad request. Validation error in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, workerId should be a number"
+        404:
+          description: Worker not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a bus worker
+      tags:
+      - Bus Worker
+      description: Deletes a specific bus worker using their workerId.
+      parameters:
+      - in: path
+        name: workerId
+        required: true
+        schema:
+          type: integer
+          example: 54568841
+        description: The unique ID of the bus worker to delete.
+      responses:
+        200:
+          description: Worker deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workerId:
+                    type: integer
+                    example: 54568841
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "dassfaanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  type:
+                    type: string
+                    example: "DRIVER"
+                  nic:
+                    type: string
+                    example: "200127201635"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-28T17:34:24.743Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-29T05:39:10.590Z"
+        400:
+          description: Bad request. Validation error in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, workerId should be a number"
+        404:
+          description: Worker not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/bus-workers/nic/{nic}:
+    get:
+      summary: Retrieve a specific bus worker by NIC
+      tags:
+      - Bus Worker
+      description: Retrieve details of a bus worker using their National Identity Card (NIC).
+      security: []
+      parameters:
+      - in: path
+        name: nic
+        required: true
+        schema:
+          type: string
+          example: "200127016535"
+        description: The NIC of the bus worker. Valid formats are either '123456789V' or '200012345678'.
+      responses:
+        200:
+          description: Worker details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workerId:
+                    type: number
+                    example: 54568841
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+                      address:
+                        type: object
+                        properties:
+                          no:
+                            type: string
+                            example: "5A"
+                          street1:
+                            type: string
+                            example: "Main Street"
+                          street2:
+                            type: string
+                            example: "Colombo 3"
+                          street3:
+                            type: string
+                            example: "Near Central Park"
+                          city:
+                            type: string
+                            example: "Colombo"
+                          district:
+                            type: string
+                            example: "Colombo"
+                          province:
+                            type: string
+                            example: "Western"
+                  type:
+                    type: string
+                    example: "DRIVER"
+                  nic:
+                    type: string
+                    example: "200127016535"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-28T17:34:24.743Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-11-28T17:34:24.743Z"
+        400:
+          description: Bad request. Invalid NIC format.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "nic must be a valid Sri Lankan NIC in the format '123456789V' or '200012345678'"
+        404:
+          description: Worker not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # ==================== PERMIT ====================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/permits:
+    post:
+      summary: Create a new permit
+      tags:
+      - Permit
+      description: Creates a new permit in the system using the provided details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permitNumber:
+                  type: string
+                  example: "PERMIT-2024-0003"
+                issueDate:
+                  type: string
+                  format: date
+                  example: "2024-11-28"
+                expiryDate:
+                  type: string
+                  format: date
+                  example: "2025-11-28"
+                route:
+                  type: number
+                  example: 22706966
+                vehicle:
+                  type: number
+                  example: 20169714
+                busOperator:
+                  type: number
+                  example: 29239246
+      responses:
+        201:
+          description: Permit successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permitId:
+                    type: number
+                    example: 47531824
+                  permitNumber:
+                    type: string
+                    example: "PERMIT-2024-0003"
+                  issueDate:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:45:03.751Z"
+                  expiryDate:
+                    type: string
+                    format: date-time
+                    example: "2025-11-28T00:00:00.000Z"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  vehicle:
+                    type: object
+                    properties:
+                      vehicleId:
+                        type: number
+                        example: 20169714
+                      registrationNumber:
+                        type: string
+                        example: "ABC12345"
+                      model:
+                        type: string
+                        example: "Volvo 960"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:45:03.751Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:45:03.751Z"
+        400:
+          description: Bad request. Validation errors or duplicate permit number.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "permitNumber already registered in the system"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    get:
+      summary: Retrieve all permits
+      tags:
+      - Permit
+      description: Fetches all permits stored in the system along with their associated details.
+      security: []
+      responses:
+        200:
+          description: List of all permits.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    permitId:
+                      type: number
+                      example: 86818915
+                    permitNumber:
+                      type: string
+                      example: "PERMIT-2024-0002"
+                    issueDate:
+                      type: string
+                      format: date-time
+                      example: "2024-12-01T04:37:12.241Z"
+                    expiryDate:
+                      type: string
+                      format: date-time
+                      example: "2025-11-28T00:00:00.000Z"
+                    route:
+                      type: object
+                      properties:
+                        routeId:
+                          type: number
+                          example: 22706966
+                        routeNumber:
+                          type: string
+                          example: "ACB-43290"
+                    vehicle:
+                      type: object
+                      properties:
+                        vehicleId:
+                          type: number
+                          example: 20169714
+                        registrationNumber:
+                          type: string
+                          example: "ABC12345"
+                        model:
+                          type: string
+                          example: "Volvo 960"
+                    busOperator:
+                      type: object
+                      properties:
+                        operatorId:
+                          type: number
+                          example: 29239246
+                        company:
+                          type: string
+                          example: "SuperBus Services"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-01T04:37:12.241Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-01T04:37:12.241Z"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/permits/{permitId}:
+    get:
+      summary: Retrieve a permit by its ID
+      tags:
+      - Permit
+      description: Fetch a specific permit's details using its unique identifier.
+      security: []
+      parameters:
+      - in: path
+        name: permitId
+        required: true
+        schema:
+          type: integer
+        description: Unique ID of the permit
+      responses:
+        200:
+          description: Details of the permit.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permitId:
+                    type: number
+                    example: 86818915
+                  permitNumber:
+                    type: string
+                    example: "PERMIT-2024-0002"
+                  issueDate:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+                  expiryDate:
+                    type: string
+                    format: date-time
+                    example: "2025-11-28T00:00:00.000Z"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  vehicle:
+                    type: object
+                    properties:
+                      vehicleId:
+                        type: number
+                        example: 20169714
+                      registrationNumber:
+                        type: string
+                        example: "ABC12345"
+                      model:
+                        type: string
+                        example: "Volvo 960"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+        400:
+          description: Invalid input or validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, permitId should be a number"
+        404:
+          description: Permit not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a permit by its ID
+      tags:
+      - Permit
+      description: Deletes a specific permit identified by its unique ID.
+      parameters:
+      - in: path
+        name: permitId
+        required: true
+        schema:
+          type: integer
+        description: Unique ID of the permit to be deleted
+      responses:
+        200:
+          description: Successfully deleted the permit. Returns the deleted permit details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permitId:
+                    type: number
+                    example: 86818915
+                  permitNumber:
+                    type: string
+                    example: "PERMIT-2024-0002"
+                  issueDate:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+                  expiryDate:
+                    type: string
+                    format: date-time
+                    example: "2025-11-28T00:00:00.000Z"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  vehicle:
+                    type: object
+                    properties:
+                      vehicleId:
+                        type: number
+                        example: 20169714
+                      registrationNumber:
+                        type: string
+                        example: "ABC12345"
+                      model:
+                        type: string
+                        example: "Volvo 960"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+        400:
+          description: Invalid input or validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, permitId should be a number"
+        404:
+          description: Permit not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/permits/permitNumber/{permitNumber}:
+    get:
+      summary: Retrieve a permit by its permit number
+      tags:
+      - Permit
+      description: Fetch details of a specific permit using its unique permit number.
+      security: []
+      parameters:
+      - in: path
+        name: permitNumber
+        required: true
+        schema:
+          type: string
+          maxLength: 20
+        description: Unique permit number of the permit
+      responses:
+        200:
+          description: Details of the permit.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permitId:
+                    type: number
+                    example: 86818915
+                  permitNumber:
+                    type: string
+                    example: "PERMIT-2024-0002"
+                  issueDate:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+                  expiryDate:
+                    type: string
+                    format: date-time
+                    example: "2025-11-28T00:00:00.000Z"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  vehicle:
+                    type: object
+                    properties:
+                      vehicleId:
+                        type: number
+                        example: 20169714
+                      registrationNumber:
+                        type: string
+                        example: "ABC12345"
+                      model:
+                        type: string
+                        example: "Volvo 960"
+                  busOperator:
+                    type: object
+                    properties:
+                      operatorId:
+                        type: number
+                        example: 29239246
+                      company:
+                        type: string
+                        example: "SuperBus Services"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T04:37:12.241Z"
+        400:
+          description: Invalid input or validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, permitNumber should be a String"
+        404:
+          description: Permit not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # ==================== SCHEDULE ====================
+  # ================================================
+  # ================================================
+  /core-service/v2.0/schedules:
+    post:
+      summary: Create a new schedule
+      tags:
+      - Schedule
+      description: Creates a new schedule in the system using the provided details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                departureTime:
+                  type: string
+                  example: "01:30"
+                arrivalTime:
+                  type: string
+                  example: "10:00"
+                startLocation:
+                  type: number
+                  example: 55908702
+                endLocation:
+                  type: number
+                  example: 55908702
+                route:
+                  type: number
+                  example: 22706966
+                permit:
+                  type: number
+                  example: 49299161
+      responses:
+        201:
+          description: Schedule successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduleId:
+                    type: number
+                    example: 45717684
+                  departureTime:
+                    type: string
+                    example: "01:30"
+                  arrivalTime:
+                    type: string
+                    example: "10:00"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  permit:
+                    type: object
+                    properties:
+                      permitId:
+                        type: number
+                        example: 49299161
+                      permitNumber:
+                        type: string
+                        example: "PERMIT-2024-0003"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T07:36:44.827Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T07:36:44.827Z"
+        400:
+          description: Bad request. Validation errors or invalid data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid schedule data"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    get:
+      summary: Get all schedules
+      tags:
+      - Schedule
+      description: Retrieves all schedules from the system.
+      security: []
+      responses:
+        200:
+          description: A list of schedules retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    scheduleId:
+                      type: number
+                      example: 45717684
+                    departureTime:
+                      type: string
+                      example: "01:30"
+                    arrivalTime:
+                      type: string
+                      example: "10:00"
+                    startLocation:
+                      type: object
+                      properties:
+                        coordinates:
+                          type: object
+                          properties:
+                            lat:
+                              type: number
+                              example: 6.933549671456952
+                            log:
+                              type: number
+                              example: 79.85550999641683
+                        stationId:
+                          type: number
+                          example: 55908702
+                        name:
+                          type: string
+                          example: "Matara"
+                    endLocation:
+                      type: object
+                      properties:
+                        coordinates:
+                          type: object
+                          properties:
+                            lat:
+                              type: number
+                              example: 6.933549671456952
+                            log:
+                              type: number
+                              example: 79.85550999641683
+                        stationId:
+                          type: number
+                          example: 55908702
+                        name:
+                          type: string
+                          example: "Matara"
+                    route:
+                      type: object
+                      properties:
+                        routeId:
+                          type: number
+                          example: 22706966
+                        routeNumber:
+                          type: string
+                          example: "ACB-43290"
+                    permit:
+                      type: object
+                      properties:
+                        permitId:
+                          type: number
+                          example: 49299161
+                        permitNumber:
+                          type: string
+                          example: "PERMIT-2024-0003"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-01T07:36:44.827Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-01T07:36:44.827Z"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /core-service/v2.0/schedules/{scheduleId}:
+    get:
+      summary: Get a schedule by ID
+      tags:
+      - Schedule
+      description: Retrieves a specific schedule by its scheduleId.
+      security: []
+      parameters:
+      - name: scheduleId
+        in: path
+        required: true
+        description: The unique identifier for the schedule.
+        schema:
+          type: integer
+          example: 91887633
+      responses:
+        200:
+          description: The schedule was found successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduleId:
+                    type: number
+                    example: 91887633
+                  departureTime:
+                    type: string
+                    example: "01:30"
+                  arrivalTime:
+                    type: string
+                    example: "10:00"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  permit:
+                    type: object
+                    properties:
+                      permitId:
+                        type: number
+                        example: 49299161
+                      permitNumber:
+                        type: string
+                        example: "PERMIT-2024-0003"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T07:57:25.729Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T07:57:25.729Z"
+        400:
+          description: Bad request. The scheduleId should be a number.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, scheduleId should be a number"
+        404:
+          description: Schedule not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    delete:
+      summary: Delete a schedule by ID
+      tags:
+      - Schedule
+      description: Deletes a specific schedule by its scheduleId.
+      parameters:
+      - name: scheduleId
+        in: path
+        required: true
+        description: The unique identifier for the schedule to be deleted.
+        schema:
+          type: integer
+          example: 91887633
+      responses:
+        200:
+          description: The schedule was successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduleId:
+                    type: number
+                    example: 91887633
+                  departureTime:
+                    type: string
+                    example: "01:30"
+                  arrivalTime:
+                    type: string
+                    example: "10:00"
+                  startLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  endLocation:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: object
+                        properties:
+                          lat:
+                            type: number
+                            example: 6.933549671456952
+                          log:
+                            type: number
+                            example: 79.85550999641683
+                      stationId:
+                        type: number
+                        example: 55908702
+                      name:
+                        type: string
+                        example: "Matara"
+                  route:
+                    type: object
+                    properties:
+                      routeId:
+                        type: number
+                        example: 22706966
+                      routeNumber:
+                        type: string
+                        example: "ACB-43290"
+                  permit:
+                    type: object
+                    properties:
+                      permitId:
+                        type: number
+                        example: 49299161
+                      permitNumber:
+                        type: string
+                        example: "PERMIT-2024-0003"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T07:57:25.729Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T07:57:25.729Z"
+        400:
+          description: Bad request. The scheduleId should be a number.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, scheduleId should be a number"
+        404:
+          description: Schedule not found. The schedule with the provided scheduleId was not found.
           content:
             application/json:
               schema:
