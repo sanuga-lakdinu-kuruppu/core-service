@@ -14,6 +14,7 @@ import {
   deleteRouteById,
   updateRouteById,
 } from "../service/routeService.mjs";
+import { log } from "../../common/util/log.mjs";
 
 import { routeSchema } from "../schema/routeSchema.mjs";
 
@@ -27,27 +28,39 @@ router.post(
   `${API_PREFIX}/routes`,
   checkSchema(routeSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       data.routeId = generateShortUuid();
       const createdRoute = await createNewRoute(data);
+
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdRoute);
     } catch (error) {
-      console.log(`route creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/routes`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundStations = await getAllRoutes();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundStations);
   } catch (error) {
-    console.log(`station getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -58,18 +71,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, routeId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { routeId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundRoute = await getRouteById(routeId);
-      if (foundRoute) return response.send(foundRoute);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundRoute) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundRoute);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`route getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -83,18 +107,28 @@ router.get(
     .isLength({ max: 50 })
     .withMessage("routeNumber must be less than 50 characters"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { routeNumber },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundRoute = await getRouteByNumber(routeNumber);
-      if (foundRoute) return response.send(foundRoute);
-      else return response.status(404).send({ error: "resource not found" });
+      if (foundRoute) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundRoute);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`route getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -107,21 +141,29 @@ router.put(
     .withMessage("bad request, routeId should be a number"),
   checkSchema(routeSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { routeId },
       } = request;
       const data = matchedData(request);
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const updatedRoute = await updateRouteById(routeId, data);
-      if (!updatedRoute)
+
+      if (!updatedRoute) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`route updated successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(updatedRoute);
     } catch (error) {
-      console.log(`route updated error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -133,26 +175,36 @@ router.delete(
     .isNumeric()
     .withMessage("bad request, routeId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { routeId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const deletedRoute = await deleteRouteById(routeId);
-      if (!deletedRoute)
+      
+      if (!deletedRoute) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`route deleted successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(deletedRoute);
     } catch (error) {
-      console.log(`route deleting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/routes*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 

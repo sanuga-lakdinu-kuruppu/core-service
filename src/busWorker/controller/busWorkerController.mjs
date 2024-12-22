@@ -16,6 +16,7 @@ import {
 import { generateShortUuid } from "../../common/util/unique.mjs";
 import { busWorkerSchema } from "../schema/busWorkerSchema.mjs";
 import { BusWorker } from "../model/busWorkerModel.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -27,35 +28,49 @@ router.post(
   `${API_PREFIX}/bus-workers`,
   checkSchema(busWorkerSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       const foundWorker = await BusWorker.findOne({
         nic: data.nic,
       });
       if (foundWorker) {
+        log(baseLog, "FAILED", "nic is already in the system");
         return response
           .status(400)
           .send({ error: "nic is already in the system" });
       }
+
       data.workerId = generateShortUuid();
       const createdWorker = await createNewBusWorker(data);
+
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdWorker);
     } catch (error) {
-      console.log(`worker creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/bus-workers`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundWorkers = await getAllworkers();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundWorkers);
   } catch (error) {
-    console.log(`worker getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -66,18 +81,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, workerId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { workerId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundWorker = await getWorkerById(workerId);
-      if (foundWorker) return response.send(foundWorker);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundWorker) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundWorker);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`worker getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -98,18 +124,29 @@ router.get(
     )
     .trim(),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { nic },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundWorker = await getWorkerByNic(nic);
-      if (foundWorker) return response.send(foundWorker);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundWorker) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundWorker);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`worker getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -122,21 +159,29 @@ router.put(
     .withMessage("bad request, workerId should be a number"),
   checkSchema(busWorkerSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { workerId },
       } = request;
       const data = matchedData(request);
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const updatedWorker = await updateWorkerById(workerId, data);
-      if (!updatedWorker)
+
+      if (!updatedWorker) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`worker updated successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(updatedWorker);
     } catch (error) {
-      console.log(`worker updating error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -148,26 +193,36 @@ router.delete(
     .isNumeric()
     .withMessage("bad request, workerId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { workerId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const deletedWorker = await deleteWorkerById(workerId);
-      if (!deletedWorker)
+
+      if (!deletedWorker) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`worker deleted successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(deletedWorker);
     } catch (error) {
-      console.log(`worker deleting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/bus-workers*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 
