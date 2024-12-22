@@ -10,13 +10,11 @@ const app = express();
 createConnection();
 
 const SERVICE_NAME = process.env.SERVICE;
-const swaggerDocument = YAML.load("./swagger/swagger.yml");
 
-app.use(
-  `/${SERVICE_NAME}/api-docs`,
-  swaggerUI.serve,
-  swaggerUI.setup(swaggerDocument)
-);
+app.use(`/${SERVICE_NAME}/api-docs`, swaggerUI.serve, (req, res, next) => {
+  const swaggerDocument = YAML.load("./swagger/swagger.yml");
+  swaggerUI.setup(swaggerDocument)(req, res, next);
+});
 app.use(express.json());
 app.use(cors());
 app.use(routes);
