@@ -15,6 +15,7 @@ import {
 } from "../service/busOperatorService.mjs";
 import { busOperatorSchema } from "../schema/busOperatorSchema.mjs";
 import { BusOperator } from "../model/busOperatorModel.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -26,39 +27,56 @@ router.post(
   `${API_PREFIX}/bus-operators`,
   checkSchema(busOperatorSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       const federatedUserId = data.contact.email.split("@")[0];
       const foundOperator = await BusOperator.findOne({
         federatedUserId: federatedUserId,
       });
+
       if (foundOperator) {
+        log(baseLog, "FAILED", "email is already registered in the system.");
         return response
           .status(400)
           .send({ error: "email is already registered in the system." });
       }
+
       data.operatorId = generateShortUuid();
       data.federatedUserId = federatedUserId;
       const createdOperator = await createNewBusOperator(data);
-      return createdOperator
-        ? response.status(201).send(createdOperator)
-        : response.status(500).send({ error: "internal server error" });
+
+      if (createdOperator) {
+        log(baseLog, "SUCCESS", {});
+        return response.status(201).send(createdOperator);
+      }
+      log(baseLog, "FAILED", "internal server error");
+      return response.status(500).send({ error: "internal server error" });
     } catch (error) {
-      console.log(`operator creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/bus-operators`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundOperators = await getAllOperators();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundOperators);
   } catch (error) {
-    console.log(`operator getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -69,18 +87,28 @@ router.get(
     .isNumeric()
     .withMessage("bad request, operatorId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { operatorId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundOperator = await getOperatorById(operatorId);
-      if (foundOperator) return response.send(foundOperator);
-      else return response.status(404).send({ error: "resource not found" });
+      if (foundOperator) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundOperator);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`operator getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -93,20 +121,26 @@ router.put(
     .withMessage("bad request, operatorId should be a number"),
   checkSchema(busOperatorSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { operatorId },
       } = request;
       const data = matchedData(request);
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
 
       const foundOperator = await BusOperator.findOne({
         operatorId: operatorId,
       });
-      if (!foundOperator)
+      if (!foundOperator) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
+      }
 
       const federatedUserId = data.contact.email.split("@")[0];
       const duplicatedOperator = await BusOperator.findOne({
@@ -117,23 +151,26 @@ router.put(
         duplicatedOperator &&
         duplicatedOperator.operatorId !== foundOperator.operatorId
       ) {
+        log(baseLog, "FAILED", "email is already registered in the system.");
         return response
           .status(400)
           .send({ error: "email is already registered in the system." });
       }
+
       const updatedOperator = await updateOperatorById(
         operatorId,
         data,
         foundOperator
       );
       if (!updatedOperator) {
+        log(baseLog, "FAILED", "internal server error");
         return response.status(500).send({ error: "internal server error" });
       }
 
-      console.log("operator updated successfully");
+      log(baseLog, "SUCCESS", {});
       return response.send(updatedOperator);
     } catch (error) {
-      console.log(`operator updated error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -145,36 +182,47 @@ router.delete(
     .isNumeric()
     .withMessage("bad request, operatorId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { operatorId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
 
       const foundOperator = await BusOperator.findOne({
         operatorId: operatorId,
       });
-      if (!foundOperator)
+      if (!foundOperator) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
+      }
 
       const deletedOperator = await deleteOperatorById(
         operatorId,
         foundOperator
       );
-      if (!deletedOperator)
+
+      if (!deletedOperator) {
+        log(baseLog, "FAILED", "internal server error");
         return response.status(500).send({ error: "internal server error" });
-      console.log(`operator deleted successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(deletedOperator);
     } catch (error) {
-      console.log(`operator deleting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/bus-operators*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 

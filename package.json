@@ -23,8 +23,8 @@
     "nodemon": "^3.1.7",
     "serverless": "^4.4.10",
     "serverless-http": "^3.2.0",
-    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.3",
     "yamljs": "^0.3.0"
   },
   "type": "module"

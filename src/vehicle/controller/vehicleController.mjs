@@ -15,6 +15,7 @@ import {
   param,
 } from "express-validator";
 import { vehicleSchema } from "../schema/vehicleShema.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -26,29 +27,43 @@ router.post(
   `${API_PREFIX}/vehicles`,
   checkSchema(vehicleSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       data.vehicleId = generateShortUuid();
       const createdVehicle = await createNewVehicle(data);
-      return createdVehicle
-        ? response.status(201).send(createdVehicle)
-        : response.status(500).send({ error: "internal server error" });
+
+      if (createdVehicle) {
+        log(baseLog, "SUCCESS", {});
+        return response.status(201).send(createdVehicle);
+      }
+      log(baseLog, "FAILED", "internal server error");
+      return response.status(500).send({ error: "internal server error" });
     } catch (error) {
-      console.log(`vehicle creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/vehicles`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundVehicles = await getAllVehicles();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundVehicles);
   } catch (error) {
-    console.log(`vehicle getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -61,20 +76,31 @@ router.get(
     .isLength({ max: 50 })
     .withMessage("registrationNumber must be less than 50 characters"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { registrationNumber },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundVehicle = await getVehicleByRegistrationNumber(
         registrationNumber
       );
-      if (foundVehicle) return response.send(foundVehicle);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundVehicle) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundVehicle);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`vehicle getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -86,18 +112,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, vehicleId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { vehicleId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundVehicle = await getVehicleById(vehicleId);
-      if (foundVehicle) return response.send(foundVehicle);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundVehicle) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundVehicle);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`vehicle getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -110,21 +147,29 @@ router.put(
     .withMessage("bad request, vehicleId should be a number"),
   checkSchema(vehicleSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { vehicleId },
       } = request;
       const data = matchedData(request);
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const updatedVehicle = await updateVehicleById(vehicleId, data);
-      if (!updatedVehicle)
+
+      if (!updatedVehicle) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`vehicle updated successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(updatedVehicle);
     } catch (error) {
-      console.log(`vehicle updated error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -136,26 +181,36 @@ router.delete(
     .isNumeric()
     .withMessage("bad request, vehicleId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { vehicleId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const deletedVehicle = await deleteVehicleById(vehicleId);
-      if (!deletedVehicle)
+
+      if (!deletedVehicle) {
+        log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
-      console.log(`vehicle deleted successfully`);
+      }
+      log(baseLog, "SUCCESS", {});
       return response.send(deletedVehicle);
     } catch (error) {
-      console.log(`vehicle deleting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/vehicles*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 

@@ -13,8 +13,11 @@ import permitRouter from "../../permit/controller/permitController.mjs";
 
 import scheduleRouter from "../../schedule/controller/scheduleController.mjs";
 import authRouter from "../../authentication/auth.mjs";
+import { logRequestMiddleware } from "../middlewares/logMiddleware.mjs";
 
 const router = Router();
+
+router.use(logRequestMiddleware);
 
 router.use(stationRouter);
 router.use(policyRouter);
