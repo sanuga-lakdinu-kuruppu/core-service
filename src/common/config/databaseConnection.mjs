@@ -20,6 +20,9 @@ const createConnection = async () => {
   try {
     await mongoose.connect(MONGO_URI, {
       useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 20000,
     });
     console.log(`database connection success :)`);
   } catch (error) {
