@@ -52,10 +52,31 @@ router.get(`${API_PREFIX}/schedules`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
-    const foundSchedules = await getAllSchedules();
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const all = request.query.all === "true";
+    const skip = (page - 1) * limit;
 
-    log(baseLog, "SUCCESS", {});
-    return response.send(foundSchedules);
+    const foundSchedules = await getAllSchedules();
+    if (all) {
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: foundSchedules,
+        total: foundSchedules.length,
+      });
+    } else {
+      const paginatedSchedules = foundSchedules.slice(skip, skip + limit);
+      const totalSchedules = foundSchedules.length;
+      const totalPages = Math.ceil(totalStations / limit);
+
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: paginatedSchedules,
+        currentPage: page,
+        totalPages,
+        total: totalSchedules,
+      });
+    }
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
