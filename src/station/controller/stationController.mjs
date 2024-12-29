@@ -68,14 +68,35 @@ router.get(
         return response.status(400).send({ error: result.errors[0].msg });
       }
 
+      const page = parseInt(request.query.page, 10) || 1;
+      const limit = parseInt(request.query.limit, 10) || 10;
+      const all = request.query.all === "true";
+      const skip = (page - 1) * limit;
+
       const {
         query: { name },
       } = request;
       const filter = name ? { name: new RegExp(name, "i") } : {};
-      const foundStations = await getAllStations(filter);
 
-      log(baseLog, "SUCCESS", {});
-      return response.send(foundStations);
+      const foundStations = await getAllStations(filter);
+      if (all) {
+        log(baseLog, "SUCCESS", {});
+        return response.send({
+          data: foundStations,
+          total: foundStations.length,
+        });
+      } else {
+        const paginatedStations = foundStations.slice(skip, skip + limit);
+        const totalStations = foundStations.length;
+        const totalPages = Math.ceil(totalStations / limit);
+        log(baseLog, "SUCCESS", {});
+        return response.send({
+          data: paginatedStations,
+          currentPage: page,
+          totalPages,
+          total: totalStations,
+        });
+      }
     } catch (error) {
       log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });

@@ -55,10 +55,31 @@ router.get(`${API_PREFIX}/routes`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
-    const foundStations = await getAllRoutes();
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const all = request.query.all === "true";
+    const skip = (page - 1) * limit;
 
-    log(baseLog, "SUCCESS", {});
-    return response.send(foundStations);
+    const foundRoutes = await getAllRoutes();
+    if (all) {
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: foundRoutes,
+        total: foundRoutes.length,
+      });
+    } else {
+      const paginatedRoutes = foundRoutes.slice(skip, skip + limit);
+      const totalRoutes = foundRoutes.length;
+      const totalPages = Math.ceil(totalRoutes / limit);
+
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: paginatedRoutes,
+        currentPage: page,
+        totalPages,
+        total: totalRoutes,
+      });
+    }
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
@@ -188,7 +209,7 @@ router.delete(
       }
 
       const deletedRoute = await deleteRouteById(routeId);
-      
+
       if (!deletedRoute) {
         log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });

@@ -58,10 +58,31 @@ router.get(`${API_PREFIX}/vehicles`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
-    const foundVehicles = await getAllVehicles();
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const all = request.query.all === "true";
+    const skip = (page - 1) * limit;
 
-    log(baseLog, "SUCCESS", {});
-    return response.send(foundVehicles);
+    const foundVehicles = await getAllVehicles();
+    if (all) {
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: foundVehicles,
+        total: foundVehicles.length,
+      });
+    } else {
+      const paginatedVehicles = foundVehicles.slice(skip, skip + limit);
+      const totalVehicles = foundVehicles.length;
+      const totalPages = Math.ceil(totalVehicles / limit);
+
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: paginatedVehicles,
+        currentPage: page,
+        totalPages,
+        total: totalVehicles,
+      });
+    }
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
