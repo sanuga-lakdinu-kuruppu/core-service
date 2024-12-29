@@ -67,7 +67,7 @@ router.get(`${API_PREFIX}/schedules`, async (request, response) => {
     } else {
       const paginatedSchedules = foundSchedules.slice(skip, skip + limit);
       const totalSchedules = foundSchedules.length;
-      const totalPages = Math.ceil(totalStations / limit);
+      const totalPages = Math.ceil(totalSchedules / limit);
 
       log(baseLog, "SUCCESS", {});
       return response.send({
