@@ -64,10 +64,31 @@ router.get(`${API_PREFIX}/permits`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
-    const foundPermits = await getAllPermits();
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const all = request.query.all === "true";
+    const skip = (page - 1) * limit;
 
-    log(baseLog, "SUCCESS", {});
-    return response.send(foundPermits);
+    const foundPermits = await getAllPermits();
+    if (all) {
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: foundPermits,
+        total: foundPermits.length,
+      });
+    } else {
+      const paginatedPermits = foundPermits.slice(skip, skip + limit);
+      const totalPermits = foundPermits.length;
+      const totalPages = Math.ceil(totalPermits / limit);
+
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: paginatedPermits,
+        currentPage: page,
+        totalPages,
+        total: totalPermits,
+      });
+    }
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });

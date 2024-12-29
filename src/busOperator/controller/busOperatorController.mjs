@@ -71,10 +71,31 @@ router.get(`${API_PREFIX}/bus-operators`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
-    const foundOperators = await getAllOperators();
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const all = request.query.all === "true";
+    const skip = (page - 1) * limit;
 
-    log(baseLog, "SUCCESS", {});
-    return response.send(foundOperators);
+    const foundOperators = await getAllOperators();
+    if (all) {
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: foundOperators,
+        total: foundOperators.length,
+      });
+    } else {
+      const paginatedOperators = foundOperators.slice(skip, skip + limit);
+      const totalOperators = foundOperators.length;
+      const totalPages = Math.ceil(totalOperators / limit);
+
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: paginatedOperators,
+        currentPage: page,
+        totalPages,
+        total: totalOperators,
+      });
+    }
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
