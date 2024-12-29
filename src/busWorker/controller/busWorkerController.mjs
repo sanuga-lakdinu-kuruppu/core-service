@@ -65,10 +65,31 @@ router.get(`${API_PREFIX}/bus-workers`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
-    const foundWorkers = await getAllworkers();
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const all = request.query.all === "true";
+    const skip = (page - 1) * limit;
 
-    log(baseLog, "SUCCESS", {});
-    return response.send(foundWorkers);
+    const foundWorkers = await getAllworkers();
+    if (all) {
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: foundWorkers,
+        total: foundWorkers.length,
+      });
+    } else {
+      const paginatedWorkers = foundWorkers.slice(skip, skip + limit);
+      const totalWorkers = foundWorkers.length;
+      const totalPages = Math.ceil(totalWorkers / limit);
+
+      log(baseLog, "SUCCESS", {});
+      return response.send({
+        data: paginatedWorkers,
+        currentPage: page,
+        totalPages,
+        total: totalWorkers,
+      });
+    }
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });

@@ -107,15 +107,39 @@ paths:
       summary: Retrieve all stations
       tags:
       - Station
-      description: Retrieve a list of all stations, optionally filtered by `name`.
+      description: Retrieve a list of all stations, optionally filtered by `name`. Supports pagination or retrieving all records.
       parameters:
       - name: name
         in: query
-        description: The name of the station to filter by (optional).
+        description: The name of the station to filter by (optional). Supports partial match (case-insensitive).
         required: false
         schema:
           type: string
           example: "Colombo"
+      - name: page
+        in: query
+        description: The page number for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+      - name: all
+        in: query
+        description: Whether to retrieve all records without pagination (optional). If `true`, `page` and `limit` are ignored.
+        required: false
+        schema:
+          type: boolean
+          example: false
       security: []
       responses:
         200:
@@ -123,37 +147,65 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    stationId:
-                      type: number
-                      example: 35840964
-                    name:
-                      type: string
-                      example: "Colombo Bus Station"
-                    coordinates:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        lat:
+                        stationId:
                           type: number
-                          example: 6.9335635889865594
-                        log:
-                          type: number
-                          example: 79.85550871384882
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-23T10:00:00Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-23T10:00:00Z"
+                          example: 35840964
+                        name:
+                          type: string
+                          example: "Colombo Bus Station"
+                        coordinates:
+                          type: object
+                          properties:
+                            lat:
+                              type: number
+                              example: 6.9335635889865594
+                            log:
+                              type: number
+                              example: 79.85550871384882
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-23T10:00:00Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-23T10:00:00Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  total:
+                    type: integer
+                    example: 50
         400:
-          description: Bad request.
+          description: Bad request. The request contains invalid or missing parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "name must be a string"
         500:
-          description: Internal server error
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
     post:
       summary: Create a new station
       tags:
@@ -557,47 +609,83 @@ paths:
       summary: Retrieve a list of policies
       tags:
       - Policy
-      description: Retrieve a list of policies, optionally filtered by `policyName`.
-      security: []
+      description: Retrieve a list of policies, optionally filtered by `policyName`. Supports pagination or retrieving all records.
       parameters:
       - name: policyName
         in: query
-        description: The name of the policy to filter by
+        description: The name of the policy to filter by (optional). Supports partial match (case-insensitive).
         required: false
         schema:
           type: string
           example: "Health Insurance"
           maxLength: 50
+      - name: page
+        in: query
+        description: The page number for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+      - name: all
+        in: query
+        description: Whether to retrieve all records without pagination (optional). If `true`, `page` and `limit` are ignored.
+        required: false
+        schema:
+          type: boolean
+          example: false
+      security: []
       responses:
         200:
           description: A list of policies.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    policyId:
-                      type: string
-                      example: "a1b2c3d4e5"
-                    policyName:
-                      type: string
-                      example: "Health Insurance"
-                    type:
-                      type: string
-                      example: "General"
-                    description:
-                      type: string
-                      example: "Comprehensive health coverage for all employees."
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-23T10:00:00Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-23T10:00:00Z"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        policyId:
+                          type: string
+                          example: "a1b2c3d4e5"
+                        policyName:
+                          type: string
+                          example: "Health Insurance"
+                        type:
+                          type: string
+                          example: "General"
+                        description:
+                          type: string
+                          example: "Comprehensive health coverage for all employees."
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-23T10:00:00Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-23T10:00:00Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  total:
+                    type: integer
+                    example: 50
         400:
           description: Bad request. Validation errors in query parameters.
           content:
@@ -981,7 +1069,32 @@ paths:
       summary: Retrieve all routes
       tags:
       - Route
-      description: Retrieve a list of all available routes with their details.
+      description: Retrieve a list of all available routes with their details. Supports pagination or retrieving all records.
+      parameters:
+      - name: page
+        in: query
+        description: The page number for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+      - name: all
+        in: query
+        description: Whether to retrieve all records without pagination (optional). If `true`, `page` and `limit` are ignored.
+        required: false
+        schema:
+          type: boolean
+          example: false
       security: []
       responses:
         200:
@@ -989,71 +1102,91 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    routeId:
-                      type: number
-                      example: 48105350
-                    routeNumber:
-                      type: string
-                      example: "ACB-43290"
-                    routeName:
-                      type: string
-                      example: "Colombo-Matara"
-                    travelDistance:
-                      type: string
-                      example: "56KM"
-                    travelDuration:
-                      type: string
-                      example: "1.5h"
-                    startLocation:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        coordinates:
+                        routeId:
+                          type: number
+                          example: 48105350
+                        routeNumber:
+                          type: string
+                          example: "ACB-43290"
+                        routeName:
+                          type: string
+                          example: "Colombo-Matara"
+                        travelDistance:
+                          type: string
+                          example: "56KM"
+                        travelDuration:
+                          type: string
+                          example: "1.5h"
+                        startLocation:
                           type: object
                           properties:
-                            lat:
+                            coordinates:
+                              type: object
+                              properties:
+                                lat:
+                                  type: number
+                                  example: 6.933549671456952
+                                log:
+                                  type: number
+                                  example: 79.85550999641683
+                            stationId:
                               type: number
-                              example: 6.933549671456952
-                            log:
-                              type: number
-                              example: 79.85550999641683
-                        stationId:
-                          type: number
-                          example: 55908702
-                        name:
-                          type: string
-                          example: "Matara"
-                    endLocation:
-                      type: object
-                      properties:
-                        coordinates:
+                              example: 55908702
+                            name:
+                              type: string
+                              example: "Matara"
+                        endLocation:
                           type: object
                           properties:
-                            lat:
+                            coordinates:
+                              type: object
+                              properties:
+                                lat:
+                                  type: number
+                                  example: 6.933549671456952
+                                log:
+                                  type: number
+                                  example: 79.85550999641683
+                            stationId:
                               type: number
-                              example: 6.933549671456952
-                            log:
-                              type: number
-                              example: 79.85550999641683
-                        stationId:
-                          type: number
-                          example: 55908702
-                        name:
+                              example: 55908702
+                            name:
+                              type: string
+                              example: "Matara"
+                        createdAt:
                           type: string
-                          example: "Matara"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-23T10:00:00Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-23T10:00:00Z"
+                          format: date-time
+                          example: "2024-11-23T10:00:00Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-23T10:00:00Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  total:
+                    type: integer
+                    example: 50
         500:
           description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
   /core-service/v2.0/routes/{routeId}:
     get:
       summary: Retrieve a specific route by its ID
@@ -1677,7 +1810,32 @@ paths:
       summary: Get all bus operators
       tags:
       - Bus Operator
-      description: This endpoint retrieves a list of all bus operators.
+      description: This endpoint retrieves a list of all bus operators. Supports pagination or retrieving all records.
+      parameters:
+      - name: page
+        in: query
+        description: The page number for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+      - name: all
+        in: query
+        description: Whether to retrieve all records without pagination (optional). If `true`, `page` and `limit` are ignored.
+        required: false
+        schema:
+          type: boolean
+          example: false
       security: []
       responses:
         200:
@@ -1685,70 +1843,82 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    operatorId:
-                      type: integer
-                      example: 80398012
-                    federatedUserId:
-                      type: string
-                      example: "sanugakuruppu.info@gmail.com"
-                    name:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        firstName:
+                        operatorId:
+                          type: integer
+                          example: 80398012
+                        federatedUserId:
                           type: string
-                          example: "Sanuga"
-                        lastName:
-                          type: string
-                          example: "Kuruppu"
-                    company:
-                      type: string
-                      example: "SuperBus Services"
-                    contact:
-                      type: object
-                      properties:
-                        mobile:
-                          type: string
-                          example: "+94778060563"
-                        email:
-                          type: string
-                          format: email
                           example: "sanugakuruppu.info@gmail.com"
-                        address:
+                        name:
                           type: object
                           properties:
-                            no:
+                            firstName:
                               type: string
-                              example: "5A"
-                            street1:
+                              example: "Sanuga"
+                            lastName:
                               type: string
-                              example: "Main Street"
-                            street2:
+                              example: "Kuruppu"
+                        company:
+                          type: string
+                          example: "SuperBus Services"
+                        contact:
+                          type: object
+                          properties:
+                            mobile:
                               type: string
-                              example: "Colombo 3"
-                            street3:
+                              example: "+94778060563"
+                            email:
                               type: string
-                              example: "Near Central Park"
-                            city:
-                              type: string
-                              example: "Colombo"
-                            district:
-                              type: string
-                              example: "Colombo"
-                            province:
-                              type: string
-                              example: "Western"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-24T09:09:23.983Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-24T09:09:23.983Z"
+                              format: email
+                              example: "sanugakuruppu.info@gmail.com"
+                            address:
+                              type: object
+                              properties:
+                                no:
+                                  type: string
+                                  example: "5A"
+                                street1:
+                                  type: string
+                                  example: "Main Street"
+                                street2:
+                                  type: string
+                                  example: "Colombo 3"
+                                street3:
+                                  type: string
+                                  example: "Near Central Park"
+                                city:
+                                  type: string
+                                  example: "Colombo"
+                                district:
+                                  type: string
+                                  example: "Colombo"
+                                province:
+                                  type: string
+                                  example: "Western"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-24T09:09:23.983Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-24T09:09:23.983Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  total:
+                    type: integer
+                    example: 50
         500:
           description: Internal server error
           content:
@@ -2306,7 +2476,32 @@ paths:
       summary: Get all vehicles
       tags:
       - Vehicle
-      description: Retrieve a list of all available vehicles with their details.
+      description: Retrieve a list of all available vehicles with their details. Supports pagination or retrieving all records.
+      parameters:
+      - name: page
+        in: query
+        description: The page number for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page for pagination (optional).
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+      - name: all
+        in: query
+        description: Whether to retrieve all records without pagination (optional). If `true`, `page` and `limit` are ignored.
+        required: false
+        schema:
+          type: boolean
+          example: false
       security: []
       responses:
         200:
@@ -2314,86 +2509,106 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    vehicleId:
-                      type: number
-                      example: 54395929
-                    registrationNumber:
-                      type: string
-                      example: "ABC12345"
-                    model:
-                      type: string
-                      example: "Volvo 960"
-                    capacity:
-                      type: number
-                      example: 50
-                    type:
-                      type: string
-                      example: "Luxury"
-                    status:
-                      type: string
-                      example: "ACTIVE"
-                    airCondition:
-                      type: boolean
-                      example: true
-                    adjustableSeats:
-                      type: boolean
-                      example: true
-                    chargingCapability:
-                      type: boolean
-                      example: false
-                    restStops:
-                      type: boolean
-                      example: true
-                    movie:
-                      type: boolean
-                      example: false
-                    music:
-                      type: boolean
-                      example: true
-                    cupHolder:
-                      type: boolean
-                      example: true
-                    emergencyExit:
-                      type: boolean
-                      example: true
-                    pricePerSeat:
-                      type: number
-                      example: 7500
-                    bookingClose:
-                      type: number
-                      example: 2
-                    cancellationPolicy:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        policyId:
+                        vehicleId:
                           type: number
-                          example: 76930122
-                        policyName:
+                          example: 54395929
+                        registrationNumber:
                           type: string
-                          example: "First Payment Policy"
-                    busOperator:
-                      type: object
-                      properties:
-                        operatorId:
+                          example: "ABC12345"
+                        model:
+                          type: string
+                          example: "Volvo 960"
+                        capacity:
                           type: number
-                          example: 29239246
-                        company:
+                          example: 50
+                        type:
                           type: string
-                          example: "SuperBus Services"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-24T11:42:17.970Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-24T11:42:17.970Z"
+                          example: "Luxury"
+                        status:
+                          type: string
+                          example: "ACTIVE"
+                        airCondition:
+                          type: boolean
+                          example: true
+                        adjustableSeats:
+                          type: boolean
+                          example: true
+                        chargingCapability:
+                          type: boolean
+                          example: false
+                        restStops:
+                          type: boolean
+                          example: true
+                        movie:
+                          type: boolean
+                          example: false
+                        music:
+                          type: boolean
+                          example: true
+                        cupHolder:
+                          type: boolean
+                          example: true
+                        emergencyExit:
+                          type: boolean
+                          example: true
+                        pricePerSeat:
+                          type: number
+                          example: 7500
+                        bookingClose:
+                          type: number
+                          example: 2
+                        cancellationPolicy:
+                          type: object
+                          properties:
+                            policyId:
+                              type: number
+                              example: 76930122
+                            policyName:
+                              type: string
+                              example: "First Payment Policy"
+                        busOperator:
+                          type: object
+                          properties:
+                            operatorId:
+                              type: number
+                              example: 29239246
+                            company:
+                              type: string
+                              example: "SuperBus Services"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-24T11:42:17.970Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-24T11:42:17.970Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  total:
+                    type: integer
+                    example: 50
         500:
-          description: Internal server error.
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
   /core-service/v2.0/vehicles/registrationNumber/{registrationNumber}:
     get:
       summary: Get a vehicle by its registration number
@@ -3110,7 +3325,30 @@ paths:
       summary: Retrieve all bus workers
       tags:
       - Bus Worker
-      description: Retrieve a list of all bus workers with their details.
+      description: Retrieve a list of all bus workers with their details, supporting pagination and an option to fetch all workers.
+      parameters:
+      - name: page
+        in: query
+        description: The page number for pagination (optional, defaults to 1).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The number of workers per page for pagination (optional, defaults to 10).
+        required: false
+        schema:
+          type: integer
+          example: 10
+      - name: all
+        in: query
+        description: Whether to fetch all workers without pagination (optional, defaults to false).
+        required: false
+        schema:
+          type: string
+          enum: [ true, false ]
+          example: "false"
       security: []
       responses:
         200:
@@ -3118,69 +3356,81 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    workerId:
-                      type: number
-                      example: 54568841
-                    name:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        firstName:
-                          type: string
-                          example: "Sanuga"
-                        lastName:
-                          type: string
-                          example: "Kuruppu"
-                    contact:
-                      type: object
-                      properties:
-                        mobile:
-                          type: string
-                          example: "+94778060563"
-                        email:
-                          type: string
-                          example: "sanugakuruppu.info@gmail.com"
-                        address:
+                        workerId:
+                          type: number
+                          example: 54568841
+                        name:
                           type: object
                           properties:
-                            no:
+                            firstName:
                               type: string
-                              example: "5A"
-                            street1:
+                              example: "Sanuga"
+                            lastName:
                               type: string
-                              example: "Main Street"
-                            street2:
+                              example: "Kuruppu"
+                        contact:
+                          type: object
+                          properties:
+                            mobile:
                               type: string
-                              example: "Colombo 3"
-                            street3:
+                              example: "+94778060563"
+                            email:
                               type: string
-                              example: "Near Central Park"
-                            city:
-                              type: string
-                              example: "Colombo"
-                            district:
-                              type: string
-                              example: "Colombo"
-                            province:
-                              type: string
-                              example: "Western"
-                    type:
-                      type: string
-                      example: "DRIVER"
-                    nic:
-                      type: string
-                      example: "200127016535"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-28T17:34:24.743Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-11-28T17:34:24.743Z"
+                              example: "sanugakuruppu.info@gmail.com"
+                            address:
+                              type: object
+                              properties:
+                                no:
+                                  type: string
+                                  example: "5A"
+                                street1:
+                                  type: string
+                                  example: "Main Street"
+                                street2:
+                                  type: string
+                                  example: "Colombo 3"
+                                street3:
+                                  type: string
+                                  example: "Near Central Park"
+                                city:
+                                  type: string
+                                  example: "Colombo"
+                                district:
+                                  type: string
+                                  example: "Colombo"
+                                province:
+                                  type: string
+                                  example: "Western"
+                        type:
+                          type: string
+                          example: "DRIVER"
+                        nic:
+                          type: string
+                          example: "200127016535"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-28T17:34:24.743Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-11-28T17:34:24.743Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 10
+                  total:
+                    type: integer
+                    example: 100
         500:
           description: Internal server error.
           content:
@@ -3811,7 +4061,30 @@ paths:
       summary: Retrieve all permits
       tags:
       - Permit
-      description: Fetches all permits stored in the system along with their associated details.
+      description: Fetches all permits stored in the system along with their associated details. Supports pagination and an option to fetch all permits without pagination.
+      parameters:
+      - name: page
+        in: query
+        description: The page number for pagination (optional, defaults to 1).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The number of permits per page for pagination (optional, defaults to 10).
+        required: false
+        schema:
+          type: integer
+          example: 10
+      - name: all
+        in: query
+        description: Whether to fetch all permits without pagination (optional, defaults to false).
+        required: false
+        schema:
+          type: string
+          enum: [ true, false ]
+          example: "false"
       security: []
       responses:
         200:
@@ -3819,62 +4092,74 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    permitId:
-                      type: number
-                      example: 86818915
-                    permitNumber:
-                      type: string
-                      example: "PERMIT-2024-0002"
-                    issueDate:
-                      type: string
-                      format: date-time
-                      example: "2024-12-01T04:37:12.241Z"
-                    expiryDate:
-                      type: string
-                      format: date-time
-                      example: "2025-11-28T00:00:00.000Z"
-                    route:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        routeId:
+                        permitId:
                           type: number
-                          example: 22706966
-                        routeNumber:
+                          example: 86818915
+                        permitNumber:
                           type: string
-                          example: "ACB-43290"
-                    vehicle:
-                      type: object
-                      properties:
-                        vehicleId:
-                          type: number
-                          example: 20169714
-                        registrationNumber:
+                          example: "PERMIT-2024-0002"
+                        issueDate:
                           type: string
-                          example: "ABC12345"
-                        model:
+                          format: date-time
+                          example: "2024-12-01T04:37:12.241Z"
+                        expiryDate:
                           type: string
-                          example: "Volvo 960"
-                    busOperator:
-                      type: object
-                      properties:
-                        operatorId:
-                          type: number
-                          example: 29239246
-                        company:
+                          format: date-time
+                          example: "2025-11-28T00:00:00.000Z"
+                        route:
+                          type: object
+                          properties:
+                            routeId:
+                              type: number
+                              example: 22706966
+                            routeNumber:
+                              type: string
+                              example: "ACB-43290"
+                        vehicle:
+                          type: object
+                          properties:
+                            vehicleId:
+                              type: number
+                              example: 20169714
+                            registrationNumber:
+                              type: string
+                              example: "ABC12345"
+                            model:
+                              type: string
+                              example: "Volvo 960"
+                        busOperator:
+                          type: object
+                          properties:
+                            operatorId:
+                              type: number
+                              example: 29239246
+                            company:
+                              type: string
+                              example: "SuperBus Services"
+                        createdAt:
                           type: string
-                          example: "SuperBus Services"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-01T04:37:12.241Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-01T04:37:12.241Z"
+                          format: date-time
+                          example: "2024-12-01T04:37:12.241Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-12-01T04:37:12.241Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 10
+                  total:
+                    type: integer
+                    example: 100
         500:
           description: Internal server error.
           content:
@@ -4333,7 +4618,30 @@ paths:
       summary: Get all schedules
       tags:
       - Schedule
-      description: Retrieves all schedules from the system.
+      description: Retrieves all schedules from the system. Supports pagination and an option to fetch all schedules without pagination.
+      parameters:
+      - name: page
+        in: query
+        description: The page number for pagination (optional, defaults to 1).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The number of schedules per page for pagination (optional, defaults to 10).
+        required: false
+        schema:
+          type: integer
+          example: 10
+      - name: all
+        in: query
+        description: Whether to fetch all schedules without pagination (optional, defaults to false).
+        required: false
+        schema:
+          type: string
+          enum: [ true, false ]
+          example: "false"
       security: []
       responses:
         200:
@@ -4341,81 +4649,93 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    scheduleId:
-                      type: number
-                      example: 45717684
-                    departureTime:
-                      type: string
-                      example: "01:30"
-                    arrivalTime:
-                      type: string
-                      example: "10:00"
-                    startLocation:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        coordinates:
+                        scheduleId:
+                          type: number
+                          example: 45717684
+                        departureTime:
+                          type: string
+                          example: "01:30"
+                        arrivalTime:
+                          type: string
+                          example: "10:00"
+                        startLocation:
                           type: object
                           properties:
-                            lat:
+                            coordinates:
+                              type: object
+                              properties:
+                                lat:
+                                  type: number
+                                  example: 6.933549671456952
+                                log:
+                                  type: number
+                                  example: 79.85550999641683
+                            stationId:
                               type: number
-                              example: 6.933549671456952
-                            log:
-                              type: number
-                              example: 79.85550999641683
-                        stationId:
-                          type: number
-                          example: 55908702
-                        name:
-                          type: string
-                          example: "Matara"
-                    endLocation:
-                      type: object
-                      properties:
-                        coordinates:
+                              example: 55908702
+                            name:
+                              type: string
+                              example: "Matara"
+                        endLocation:
                           type: object
                           properties:
-                            lat:
+                            coordinates:
+                              type: object
+                              properties:
+                                lat:
+                                  type: number
+                                  example: 6.933549671456952
+                                log:
+                                  type: number
+                                  example: 79.85550999641683
+                            stationId:
                               type: number
-                              example: 6.933549671456952
-                            log:
+                              example: 55908702
+                            name:
+                              type: string
+                              example: "Matara"
+                        route:
+                          type: object
+                          properties:
+                            routeId:
                               type: number
-                              example: 79.85550999641683
-                        stationId:
-                          type: number
-                          example: 55908702
-                        name:
+                              example: 22706966
+                            routeNumber:
+                              type: string
+                              example: "ACB-43290"
+                        permit:
+                          type: object
+                          properties:
+                            permitId:
+                              type: number
+                              example: 49299161
+                            permitNumber:
+                              type: string
+                              example: "PERMIT-2024-0003"
+                        createdAt:
                           type: string
-                          example: "Matara"
-                    route:
-                      type: object
-                      properties:
-                        routeId:
-                          type: number
-                          example: 22706966
-                        routeNumber:
+                          format: date-time
+                          example: "2024-12-01T07:36:44.827Z"
+                        updatedAt:
                           type: string
-                          example: "ACB-43290"
-                    permit:
-                      type: object
-                      properties:
-                        permitId:
-                          type: number
-                          example: 49299161
-                        permitNumber:
-                          type: string
-                          example: "PERMIT-2024-0003"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-01T07:36:44.827Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-01T07:36:44.827Z"
+                          format: date-time
+                          example: "2024-12-01T07:36:44.827Z"
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 10
+                  total:
+                    type: integer
+                    example: 100
         500:
           description: Internal server error.
           content:

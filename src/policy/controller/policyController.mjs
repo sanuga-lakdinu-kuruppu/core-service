@@ -68,16 +68,38 @@ router.get(
         return response.status(400).send({ error: result.errors[0].msg });
       }
 
+      const page = parseInt(request.query.page, 10) || 1;
+      const limit = parseInt(request.query.limit, 10) || 10;
+      const all = request.query.all === "true";
+      const skip = (page - 1) * limit;
+
       const {
         query: { policyName },
       } = request;
       const filter = policyName
         ? { policyName: new RegExp(policyName, "i") }
         : {};
-      const foundPolicies = await getAllPolicies(filter);
 
-      log(baseLog, "SUCCESS", {});
-      return response.send(foundPolicies);
+      const foundPolicies = await getAllPolicies(filter);
+      if (all) {
+        log(baseLog, "SUCCESS", {});
+        return response.send({
+          data: foundPolicies,
+          total: foundPolicies.length,
+        });
+      } else {
+        const paginatedPolicies = foundPolicies.slice(skip, skip + limit);
+        const totalPolicies = foundPolicies.length;
+        const totalPages = Math.ceil(totalPolicies / limit);
+
+        log(baseLog, "SUCCESS", {});
+        return response.send({
+          data: paginatedPolicies,
+          currentPage: page,
+          totalPages,
+          total: totalPolicies,
+        });
+      }
     } catch (error) {
       log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
