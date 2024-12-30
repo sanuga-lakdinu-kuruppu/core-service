@@ -1,4 +1,4 @@
-# Inter-Provincial Bus Booking System (busriya.com) - API Design - SRI LANKA (Microservices Architecture)
+# Inter-Provincial Bus Booking System (busriya.com) - API Design - SRI LANKA (Microservices Architecture With Event Driven Communication)
 
 (YR3COBSCCOMP232P002)
 
@@ -7,29 +7,29 @@ Welcome to the backend of the **Inter-Provincial Bus Booking System (busriya.com
 ### Exhibit Client
 
 - **Website**: [https://www.busriya.com](https://www.busriya.com)
-- **Git Repository**: [Git Link](link)
+- **Git Repository**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/booking-client)
 
 ### Core Services
 
 - **Core Service**: [https://api.busriya.com/core-service/v2.0](https://api.busriya.com/core-service/v2.0)
 
   - **Swagger**: [https://api.busriya.com/core-service/api-docs](https://api.busriya.com/core-service/api-docs)
-  - **Git Repository**: [Git Link](link)
+  - **Git Repository**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/core-service)
 
 - **Trip Service**: [https://api.busriya.com/trip-service/v1.3](https://api.busriya.com/trip-service/v1.3)
 
   - **Swagger**: [https://api.busriya.com/trip-service/api-docs](https://api.busriya.com/trip-service/api-docs)
-  - **Git Repository**: [Git Link](link)
+  - **Git Repository**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/trip-service)
 
 - **Booking Service**: [https://api.busriya.com/booking-service/v1.7](https://api.busriya.com/booking-service/v1.7)
   - **Swagger**: [https://api.busriya.com/booking-service/api-docs](https://api.busriya.com/booking-service/api-docs)
-  - **Git Repository**: [Git Link](link)
+  - **Git Repository**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/booking-service)
 
 ### Support Services
 
-- **Core Support Service**: [Git Link](link)
-- **Trip Support Service**: [Git Link](link)
-- **Booking Support Service**: [Git Link](link)
+- **Core Support Service**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/core-support-service)
+- **Trip Support Service**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/trip-support-service)
+- **Booking Support Service**: [Git Link](https://github.com/sanuga-lakdinu-kuruppu/booking-support-service)
 
 ---
 
@@ -51,9 +51,7 @@ The backend system facilitates:
 
 ## 🏗️ **System Architecture**
 
-![Architecture Diagram](link-to-your-architecture-image)
-
-> _Replace the above placeholder with a link to your architecture diagram hosted on GitHub or another accessible platform._
+![Architecture Diagram](https://busriya-architecture.s3.ap-southeast-1.amazonaws.com/busriya.com.png)
 
 ---
 
