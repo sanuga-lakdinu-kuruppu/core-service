@@ -51,7 +51,7 @@ The backend system facilitates:
 
 ## 🏗️ **System Architecture**
 
-![Architecture Diagram](https://busriya-architecture.s3.ap-southeast-1.amazonaws.com/busriya.com.png)
+![Architecture Diagram](./architecture/busriya.com.png)
 
 ---
 
